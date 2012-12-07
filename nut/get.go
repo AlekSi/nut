@@ -104,8 +104,12 @@ func runGet(cmd *Command) {
 
 		p := getP
 		if p == "" {
-			p, _, err = net.SplitHostPort(url.Host)
-			PanicIfErr(err)
+			if strings.Contains(url.Host, ":") {
+				p, _, err = net.SplitHostPort(url.Host)
+				PanicIfErr(err)
+			} else {
+				p = url.Host
+			}
 		}
 		fileName := WriteNut(b, p, getV)
 		path := filepath.Join(p, nf.Name, nf.Version.String())
