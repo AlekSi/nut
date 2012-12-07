@@ -1,0 +1,15 @@
+{
+  "Version": "0.1.0",
+  "Authors": [
+    {
+      "FullName": "Alexey Palazhchenko",
+      "Email": "alexey.palazhchenko@gmail.com"
+    }
+  ],
+  "ExtraFiles": [
+    "CHANGELOG",
+    "CONTRIBUTING.md",
+    "LICENSE",
+    "README.md"
+  ]
+}
