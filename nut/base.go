@@ -22,6 +22,7 @@ type Config struct {
 
 const (
 	ConfigFileName = ".nut.json"
+	DefaultServer  = "www.gonuts.io"
 )
 
 var (
