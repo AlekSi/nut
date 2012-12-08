@@ -39,10 +39,11 @@ func init() {
 	if len(srcDirs) == 0 {
 		env := os.Getenv("GOPATH")
 		if env == "" {
-			log.Fatal("GOPATH environment variable is empty.")
+			log.Print("GOPATH environment variable is empty.")
 		} else {
-			log.Fatalf("Workspaces in GOPATH environment variable (%s), or their src subpaths don't exist.", env)
+			log.Printf("Workspaces in GOPATH environment variable (%s), or their src subpaths don't exist.", env)
 		}
+		log.Fatal("Setup a workspace as described there: http://golang.org/doc/code.html")
 	}
 
 	SrcDir = srcDirs[0]
