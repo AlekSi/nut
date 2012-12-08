@@ -16,6 +16,9 @@ import (
 // Check package for errors and return them.
 func CheckPackage(pack *build.Package) (errors []string) {
 	// check name
+	if strings.ToLower(pack.Name) != pack.Name {
+		errors = append(errors, `Package name should be lower case.`)
+	}
 	if strings.HasPrefix(pack.Name, "_") {
 		errors = append(errors, `Package name should not starts with "_".`)
 	}
