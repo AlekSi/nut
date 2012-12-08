@@ -1,4 +1,3 @@
-// Package main implements 'nut' command. Code there is not considered to be a public API.
 package main
 
 import (
@@ -23,6 +22,7 @@ type Config struct {
 
 const (
 	ConfigFileName = ".nut.json"
+	DefaultServer  = "www.gonuts.io"
 )
 
 var (

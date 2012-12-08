@@ -14,10 +14,6 @@ import (
 	. "github.com/AlekSi/nut"
 )
 
-const (
-	maxDownloads = 4
-)
-
 var (
 	cmdGet = &Command{
 		Run:       runGet,
@@ -36,7 +32,7 @@ Download and install nut from http://gonuts.io/ or specified URL.
 	`
 
 	cmdGet.Flag.StringVar(&getP, "p", "", "install prefix in workspace, uses hostname if omitted")
-	cmdGet.Flag.StringVar(&getS, "server", "www.gonuts.io", "server to use")
+	cmdGet.Flag.StringVar(&getS, "server", DefaultServer, "alternative gonuts.io server to use")
 	cmdGet.Flag.BoolVar(&getV, "v", false, "be verbose")
 }
 
@@ -90,6 +86,10 @@ func get(url *url.URL) (b []byte, err error) {
 		return
 	}
 
+	if getV {
+		log.Printf("Status code %d", res.StatusCode)
+	}
+
 	return
 }
 
@@ -109,6 +109,9 @@ func runGet(cmd *Command) {
 				PanicIfErr(err)
 			} else {
 				p = url.Host
+			}
+			if strings.HasPrefix(p, "www.") {
+				p = strings.TrimLeft(p, "w.")
 			}
 		}
 		fileName := WriteNut(b, p, getV)

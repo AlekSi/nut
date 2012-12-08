@@ -1,8 +1,9 @@
 package nut_test
 
 import (
-	. "."
 	"encoding/json"
+
+	. "."
 	. "launchpad.net/gocheck"
 )
 

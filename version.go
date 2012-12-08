@@ -9,7 +9,7 @@ import (
 // Current format for nut version.
 var VersionRegexp = regexp.MustCompile(`^(\d+).(\d+).(\d+)$`)
 
-// Describes nut version. See http://gonuts.io/XXX for explanation of version specification.
+// Describes nut version. See http://gonuts.io/-/doc/versioning for explanation of version specification.
 type Version struct {
 	Major int
 	Minor int

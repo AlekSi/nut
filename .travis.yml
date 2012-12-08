@@ -1,0 +1,3 @@
+language: go
+before_install: sudo apt-get -qq install bzr
+install: make prepare

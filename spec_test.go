@@ -1,11 +1,12 @@
 package nut_test
 
 import (
-	. "."
 	"bytes"
 	"io/ioutil"
-	. "launchpad.net/gocheck"
 	"os"
+
+	. "."
+	. "launchpad.net/gocheck"
 )
 
 type S struct {
