@@ -1,3 +1,7 @@
+2012-12-09: 0.1.2
+  * Nut names should be lower case.
+  * Documentation improvements.
+
 2012-12-08: 0.1.1
   * Fix installing nuts from www.gonuts.io.
   * Documentation improvements.
