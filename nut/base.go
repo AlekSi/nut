@@ -236,5 +236,7 @@ func InstallPackage(path string, verbose bool) {
 	if verbose || err != nil {
 		log.Print(string(out))
 	}
-	PanicIfErr(err)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
