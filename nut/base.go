@@ -29,6 +29,7 @@ var (
 	WorkspaceDir string // current workspace (first path in GOPATH)
 	SrcDir       string // src directory in current workspace
 	NutDir       string // nut directory in current workspace
+	server       string
 	config       Config
 )
 
@@ -67,6 +68,11 @@ func init() {
 	if err != nil && !os.IsNotExist(err) {
 		log.Printf("Warning: Can't load config from %s: %s\n", path, err)
 		config = Config{}
+	}
+
+	server = os.Getenv("GONUTS_SERVER")
+	if server == "" {
+		server = DefaultServer
 	}
 }
 
