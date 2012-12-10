@@ -8,7 +8,7 @@ First of all, thank you for your interest in making packaging better! There are 
 * contributing code bug fixes and new features;
 * contributing documentation fixes (there is probably a ton of grammar errors :/) and improvements.
 
-The following sections describes those scenarios. Golden rule: communicate first, code alter.
+The following sections describes those scenarios. Golden rule: communicate first, code later.
 
 Reporting bugs
 --------------
