@@ -43,7 +43,7 @@ func runGenerate(cmd *Command) {
 		action = "generated"
 		spec = new(Spec)
 	} else {
-		spec = ReadSpec()
+		spec = ReadSpec(SpecFileName)
 	}
 
 	// read package

@@ -51,7 +51,7 @@ func runPack(cmd *Command) {
 	}
 
 	var fileName string
-	spec := ReadSpec()
+	spec := ReadSpec(SpecFileName)
 	nut := Nut{Spec: *spec, Package: *pack}
 	if packO == "" {
 		fileName = nut.FileName()

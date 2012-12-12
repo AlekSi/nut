@@ -84,9 +84,9 @@ func PanicIfErr(err error) {
 
 // TODO common functions there are mess for now
 
-// Read spec from SpecFileName in current directory.
-func ReadSpec() (spec *Spec) {
-	f, err := os.Open(SpecFileName)
+// Read spec file.
+func ReadSpec(fileName string) (spec *Spec) {
+	f, err := os.Open(fileName)
 	PanicIfErr(err)
 	defer f.Close()
 	spec = new(Spec)
