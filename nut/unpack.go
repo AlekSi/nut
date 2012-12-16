@@ -22,10 +22,14 @@ Unpack nut into current directory.
 	`
 
 	cmdUnpack.Flag.BoolVar(&unpackNC, "nc", false, "no check (not recommended)")
-	cmdUnpack.Flag.BoolVar(&unpackV, "v", false, "be verbose")
+	cmdUnpack.Flag.BoolVar(&unpackV, "v", false, vHelp)
 }
 
 func runUnpack(cmd *Command) {
+	if !unpackV {
+		unpackV = config.V
+	}
+
 	if len(cmd.Flag.Args()) != 1 {
 		log.Fatalf("Expected exactly one filename, got %s", cmd.Flag.Args())
 	}

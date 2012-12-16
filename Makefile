@@ -23,5 +23,5 @@ test: fvb
 	cd ../test_nut1 && ../nut/gonut install -v test_nut1-0.0.1.nut
 
 test_server: test
-	cd ../test_nut1 && ../nut/gonut publish -v -server localhost:8080 test_nut1-0.0.1.nut
-	cd ../test_nut1 && ../nut/gonut get -v -server localhost:8080 test_nut1/0.0.1
+	cd ../test_nut1 && GONUTS_SERVER=localhost:8080 ../nut/gonut publish -v test_nut1-0.0.1.nut
+	cd ../test_nut1 && GONUTS_SERVER=localhost:8080 ../nut/gonut get -v test_nut1/0.0.1

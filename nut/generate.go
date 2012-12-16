@@ -29,10 +29,14 @@ func init() {
 Generates or updates spec nut.json in for package in current directory.
 	`
 
-	cmdGenerate.Flag.BoolVar(&generateV, "v", false, "be verbose")
+	cmdGenerate.Flag.BoolVar(&generateV, "v", false, vHelp)
 }
 
 func runGenerate(cmd *Command) {
+	if !generateV {
+		generateV = config.V
+	}
+
 	action := "updated"
 	var err error
 	var spec *Spec
@@ -43,7 +47,7 @@ func runGenerate(cmd *Command) {
 		action = "generated"
 		spec = new(Spec)
 	} else {
-		spec = ReadSpec()
+		spec = ReadSpec(SpecFileName)
 	}
 
 	// read package

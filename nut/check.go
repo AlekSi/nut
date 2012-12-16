@@ -25,10 +25,14 @@ Checks given spec (.json) or nut (.nut) files.
 If no filenames are given, checks spec nut.json in current directory.
 	`
 
-	cmdCheck.Flag.BoolVar(&checkV, "v", false, "be verbose")
+	cmdCheck.Flag.BoolVar(&checkV, "v", false, vHelp)
 }
 
 func runCheck(cmd *Command) {
+	if !checkV {
+		checkV = config.V
+	}
+
 	args := cmd.Flag.Args()
 	if len(args) == 0 {
 		args = []string{SpecFileName}
@@ -40,7 +44,7 @@ func runCheck(cmd *Command) {
 		parts := strings.Split(arg, ".")
 		switch parts[len(parts)-1] {
 		case "json":
-			spec := ReadSpec()
+			spec := ReadSpec(arg)
 			pack, err := build.ImportDir(".", 0)
 			PanicIfErr(err)
 			errors = spec.Check()

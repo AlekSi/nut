@@ -17,12 +17,11 @@ import (
 var (
 	cmdGet = &Command{
 		Run:       runGet,
-		UsageLine: "get [-p prefix] [-server server] [-v] [name or URL]",
+		UsageLine: "get [-p prefix] [-v] [name or URL]",
 		Short:     "download and install nut",
 	}
 
 	getP string
-	getS string
 	getV bool
 )
 
@@ -32,8 +31,7 @@ Download and install nut from http://gonuts.io/ or specified URL.
 	`
 
 	cmdGet.Flag.StringVar(&getP, "p", "", "install prefix in workspace, uses hostname if omitted")
-	cmdGet.Flag.StringVar(&getS, "server", DefaultServer, "alternative gonuts.io server to use")
-	cmdGet.Flag.BoolVar(&getV, "v", false, "be verbose")
+	cmdGet.Flag.BoolVar(&getV, "v", false, vHelp)
 }
 
 func ArgToURL(s string) (url *url.URL) {
@@ -47,7 +45,7 @@ func ArgToURL(s string) (url *url.URL) {
 
 	switch strings.Count(s, "/") {
 	case 0, 1:
-		url, err = url.Parse(fmt.Sprintf("http://%s/%s", getS, s))
+		url, err = url.Parse(fmt.Sprintf("http://%s/%s", gonutsServer, s))
 	case 2:
 		p := strings.Split(s, "/")
 		url, err = url.Parse(fmt.Sprintf("http://%s/%s-%s.nut", p[0], p[1], p[2]))
@@ -94,6 +92,10 @@ func get(url *url.URL) (b []byte, err error) {
 }
 
 func runGet(cmd *Command) {
+	if !getV {
+		getV = config.V
+	}
+
 	for _, arg := range cmd.Flag.Args() {
 		url := ArgToURL(arg)
 		b, err := get(url)

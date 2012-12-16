@@ -30,10 +30,14 @@ Packs package in current directory into nut.
 
 	cmdPack.Flag.BoolVar(&packNC, "nc", false, "no check (not recommended)")
 	cmdPack.Flag.StringVar(&packO, "o", "", "output filename")
-	cmdPack.Flag.BoolVar(&packV, "v", false, "be verbose")
+	cmdPack.Flag.BoolVar(&packV, "v", false, vHelp)
 }
 
 func runPack(cmd *Command) {
+	if !packV {
+		packV = config.V
+	}
+
 	/*
 		packages := build.ImportDir(".", 0)
 		if len(packages) > 1 {
@@ -51,7 +55,7 @@ func runPack(cmd *Command) {
 	}
 
 	var fileName string
-	spec := ReadSpec()
+	spec := ReadSpec(SpecFileName)
 	nut := Nut{Spec: *spec, Package: *pack}
 	if packO == "" {
 		fileName = nut.FileName()

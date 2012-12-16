@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"go/build"
 	"io/ioutil"
 	"log"
@@ -18,10 +19,12 @@ import (
 
 type Config struct {
 	Token string
+	V     bool
 }
 
 const (
 	ConfigFileName = ".nut.json"
+	ConfigFilePerm = 0644
 	DefaultServer  = "www.gonuts.io"
 )
 
@@ -29,7 +32,10 @@ var (
 	WorkspaceDir string // current workspace (first path in GOPATH)
 	SrcDir       string // src directory in current workspace
 	NutDir       string // nut directory in current workspace
+
 	config       Config
+	gonutsServer string
+	vHelp        string = fmt.Sprintf("be verbose, may be read from ~/%s", ConfigFileName)
 )
 
 func init() {
@@ -68,6 +74,21 @@ func init() {
 		log.Printf("Warning: Can't load config from %s: %s\n", path, err)
 		config = Config{}
 	}
+
+	if !os.IsNotExist(err) {
+		b, err = json.MarshalIndent(config, "", "  ")
+		if err == nil {
+			err = ioutil.WriteFile(path, b, ConfigFilePerm)
+		}
+		if err != nil {
+			log.Printf("Warning: Can't write config to %s: %s\n", path, err)
+		}
+	}
+
+	gonutsServer = os.Getenv("GONUTS_SERVER")
+	if gonutsServer == "" {
+		gonutsServer = DefaultServer
+	}
 }
 
 func PanicIfErr(err error) {
@@ -78,9 +99,9 @@ func PanicIfErr(err error) {
 
 // TODO common functions there are mess for now
 
-// Read spec from SpecFileName in current directory.
-func ReadSpec() (spec *Spec) {
-	f, err := os.Open(SpecFileName)
+// Read spec file.
+func ReadSpec(fileName string) (spec *Spec) {
+	f, err := os.Open(fileName)
 	PanicIfErr(err)
 	defer f.Close()
 	spec = new(Spec)
@@ -236,5 +257,7 @@ func InstallPackage(path string, verbose bool) {
 	if verbose || err != nil {
 		log.Print(string(out))
 	}
-	PanicIfErr(err)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

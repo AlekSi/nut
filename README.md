@@ -1,4 +1,4 @@
-nut [![Build Status](https://secure.travis-ci.org/AlekSi/nut.png?branch=master)](https://travis-ci.org/AlekSi/nut)
+nut [![Build Status](https://secure.travis-ci.org/AlekSi/nut.png?branch=master)](https://travis-ci.org/AlekSi/nut) [![Is maintained?](http://stillmaintained.com/AlekSi/nut.png)](http://stillmaintained.com/AlekSi/nut)
 ===
 
 Nut is a tool to manage versioned [Go](http://golang.org) source code packages, called "nuts".

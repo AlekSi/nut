@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net/url"
 	"strings"
 )
 
@@ -13,6 +14,7 @@ type Spec struct {
 	Version    Version
 	Authors    []Person
 	ExtraFiles []string `json:",omitempty"`
+	Homepage   string   `json:",omitempty"`
 }
 
 // Describes nut author.
@@ -88,6 +90,18 @@ func (spec *Spec) Check() (errors []string) {
 	}
 	if !licenseFound {
 		errors = append(errors, "Spec should include license file in ExtraFiles.")
+	}
+
+	// check homepage
+	if spec.Homepage != "" {
+		u, err := url.Parse(spec.Homepage)
+		if err != nil {
+			errors = append(errors, fmt.Sprintf("Can't parse homepage: %s", err))
+		} else {
+			if !u.IsAbs() || u.Opaque != "" || (u.Scheme != "http" && u.Scheme != "https") {
+				errors = append(errors, "Homepage should be absolute http:// or https:// URL.")
+			}
+		}
 	}
 
 	return
