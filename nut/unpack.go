@@ -26,6 +26,10 @@ Unpack nut into current directory.
 }
 
 func runUnpack(cmd *Command) {
+	if !unpackV {
+		unpackV = config.V
+	}
+
 	if len(cmd.Flag.Args()) != 1 {
 		log.Fatalf("Expected exactly one filename, got %s", cmd.Flag.Args())
 	}

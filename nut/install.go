@@ -33,6 +33,10 @@ and installs using 'go install'.
 }
 
 func runInstall(cmd *Command) {
+	if !installV {
+		installV = config.V
+	}
+
 	for _, arg := range cmd.Flag.Args() {
 		_, nf := ReadNut(arg)
 

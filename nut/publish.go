@@ -35,6 +35,9 @@ func runPublish(cmd *Command) {
 	if publishToken == "" {
 		publishToken = config.Token
 	}
+	if !publishV {
+		publishV = config.V
+	}
 
 	url, err := url.Parse("http://" + server)
 	PanicIfErr(err)

@@ -34,6 +34,10 @@ Packs package in current directory into nut.
 }
 
 func runPack(cmd *Command) {
+	if !packV {
+		packV = config.V
+	}
+
 	/*
 		packages := build.ImportDir(".", 0)
 		if len(packages) > 1 {

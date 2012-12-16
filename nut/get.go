@@ -92,6 +92,10 @@ func get(url *url.URL) (b []byte, err error) {
 }
 
 func runGet(cmd *Command) {
+	if !getV {
+		getV = config.V
+	}
+
 	for _, arg := range cmd.Flag.Args() {
 		url := ArgToURL(arg)
 		b, err := get(url)

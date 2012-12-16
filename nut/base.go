@@ -18,6 +18,7 @@ import (
 
 type Config struct {
 	Token string
+	V     bool
 }
 
 const (

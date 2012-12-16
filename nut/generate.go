@@ -33,6 +33,10 @@ Generates or updates spec nut.json in for package in current directory.
 }
 
 func runGenerate(cmd *Command) {
+	if !generateV {
+		generateV = config.V
+	}
+
 	action := "updated"
 	var err error
 	var spec *Spec

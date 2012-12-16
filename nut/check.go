@@ -29,6 +29,10 @@ If no filenames are given, checks spec nut.json in current directory.
 }
 
 func runCheck(cmd *Command) {
+	if !checkV {
+		checkV = config.V
+	}
+
 	args := cmd.Flag.Args()
 	if len(args) == 0 {
 		args = []string{SpecFileName}
