@@ -33,9 +33,10 @@ var (
 	SrcDir       string // src directory in current workspace
 	NutDir       string // nut directory in current workspace
 
-	config       Config
-	gonutsServer string
-	vHelp        string = fmt.Sprintf("be verbose, may be read from ~/%s", ConfigFileName)
+	GonutsServer string
+
+	config Config
+	vHelp  string = fmt.Sprintf("be verbose, may be read from ~/%s", ConfigFileName)
 )
 
 func init() {
@@ -85,9 +86,9 @@ func init() {
 		}
 	}
 
-	gonutsServer = os.Getenv("GONUTS_SERVER")
-	if gonutsServer == "" {
-		gonutsServer = DefaultServer
+	GonutsServer = os.Getenv("GONUTS_SERVER")
+	if GonutsServer == "" {
+		GonutsServer = DefaultServer
 	}
 }
 

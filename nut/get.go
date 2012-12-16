@@ -43,16 +43,11 @@ func ArgToURL(s string) (url *url.URL) {
 		return
 	}
 
-	switch strings.Count(s, "/") {
-	case 0, 1:
-		url, err = url.Parse(fmt.Sprintf("http://%s/%s", gonutsServer, s))
-	case 2:
-		p := strings.Split(s, "/")
-		url, err = url.Parse(fmt.Sprintf("http://%s/%s-%s.nut", p[0], p[1], p[2]))
-	default:
-		log.Panicf("Failed to parse argument %q", s)
+	p := strings.Split(s, "/")
+	if len(p) > 1 && (p[0] == DefaultServer[4:]) {
+		s = strings.Join(p[1:], "/")
 	}
-
+	url, err = url.Parse(fmt.Sprintf("http://%s/%s", GonutsServer, s))
 	PanicIfErr(err)
 	return
 }
@@ -69,10 +64,10 @@ func get(url *url.URL) (b []byte, err error) {
 	req.Header.Set("Accept", "application/zip")
 
 	res, err := http.DefaultClient.Do(req)
-	defer res.Body.Close()
 	if err != nil {
 		return
 	}
+	defer res.Body.Close()
 
 	b, err = ioutil.ReadAll(res.Body)
 	if err != nil {
@@ -96,13 +91,31 @@ func runGet(cmd *Command) {
 		getV = config.V
 	}
 
-	for _, arg := range cmd.Flag.Args() {
+	args := cmd.Flag.Args()
+	paths := make([]string, 0, len(args))
+	for {
+		if len(args) == 0 {
+			break
+		}
+		arg := args[0]
+		args = args[1:]
+
 		url := ArgToURL(arg)
 		b, err := get(url)
 		PanicIfErr(err)
 
 		nf := new(NutFile)
 		nf.ReadFrom(bytes.NewReader(b))
+
+		for _, imp := range nf.Imports {
+			if strings.HasPrefix(imp, DefaultServer[4:]+"/") {
+				d := imp[len(DefaultServer[4:])+1:]
+				if getV {
+					log.Printf("%s %s (%s) depends on %s.", nf.Name, nf.Version, arg, d)
+				}
+				args = append(args, d)
+			}
+		}
 
 		p := getP
 		if p == "" {
@@ -120,6 +133,10 @@ func runGet(cmd *Command) {
 		path := filepath.Join(p, nf.Name, nf.Version.String())
 
 		UnpackNut(fileName, filepath.Join(SrcDir, path), true, getV)
+		paths = append(paths, path)
+	}
+
+	for _, path := range paths {
 		InstallPackage(path, getV)
 	}
 }
