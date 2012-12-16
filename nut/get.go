@@ -113,7 +113,7 @@ func runGet(cmd *Command) {
 				p = url.Host
 			}
 			if strings.HasPrefix(p, "www.") {
-				p = strings.TrimLeft(p, "w.")
+				p = p[4:]
 			}
 		}
 		fileName := WriteNut(b, p, getV)
