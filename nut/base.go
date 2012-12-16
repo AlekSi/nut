@@ -24,6 +24,7 @@ type Config struct {
 
 const (
 	ConfigFileName = ".nut.json"
+	ConfigFilePerm = 0644
 	DefaultServer  = "www.gonuts.io"
 )
 
@@ -72,6 +73,16 @@ func init() {
 	if err != nil && !os.IsNotExist(err) {
 		log.Printf("Warning: Can't load config from %s: %s\n", path, err)
 		config = Config{}
+	}
+
+	if !os.IsNotExist(err) {
+		b, err = json.MarshalIndent(config, "", "  ")
+		if err == nil {
+			err = ioutil.WriteFile(path, b, ConfigFilePerm)
+		}
+		if err != nil {
+			log.Printf("Warning: Can't write config to %s: %s\n", path, err)
+		}
 	}
 
 	gonutsServer = os.Getenv("GONUTS_SERVER")
