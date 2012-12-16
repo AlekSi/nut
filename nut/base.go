@@ -23,9 +23,10 @@ type Config struct {
 }
 
 const (
-	ConfigFileName = ".nut.json"
-	ConfigFilePerm = 0644
-	DefaultServer  = "www.gonuts.io"
+	ConfigFileName   = ".nut.json"
+	ConfigFilePerm   = 0644
+	DefaultServer    = "gonuts.io"
+	WWWDefaultServer = "www." + DefaultServer
 )
 
 var (
@@ -88,7 +89,7 @@ func init() {
 
 	GonutsServer = os.Getenv("GONUTS_SERVER")
 	if GonutsServer == "" {
-		GonutsServer = DefaultServer
+		GonutsServer = WWWDefaultServer
 	}
 }
 

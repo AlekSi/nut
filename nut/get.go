@@ -44,7 +44,7 @@ func ArgToURL(s string) (url *url.URL) {
 	}
 
 	p := strings.Split(s, "/")
-	if len(p) > 1 && (p[0] == DefaultServer[4:]) {
+	if len(p) > 1 && (p[0] == DefaultServer) {
 		s = strings.Join(p[1:], "/")
 	}
 	url, err = url.Parse(fmt.Sprintf("http://%s/%s", GonutsServer, s))
@@ -108,8 +108,8 @@ func runGet(cmd *Command) {
 		nf.ReadFrom(bytes.NewReader(b))
 
 		for _, imp := range nf.Imports {
-			if strings.HasPrefix(imp, DefaultServer[4:]+"/") {
-				d := imp[len(DefaultServer[4:])+1:]
+			if strings.HasPrefix(imp, DefaultServer+"/") {
+				d := imp[len(DefaultServer)+1:]
 				if getV {
 					log.Printf("%s %s (%s) depends on %s.", nf.Name, nf.Version, arg, d)
 				}
