@@ -14,4 +14,5 @@ Nut is a tool to manage versioned [Go](http://golang.org) source code packages, 
 Install it with `go get`:
 
 	go get -u github.com/AlekSi/nut/nut
+	touch ~/.nut.json
 	nut help
