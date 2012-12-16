@@ -30,8 +30,9 @@ var (
 	WorkspaceDir string // current workspace (first path in GOPATH)
 	SrcDir       string // src directory in current workspace
 	NutDir       string // nut directory in current workspace
-	server       string
+
 	config       Config
+	gonutsServer string
 )
 
 func init() {
@@ -71,9 +72,9 @@ func init() {
 		config = Config{}
 	}
 
-	server = os.Getenv("GONUTS_SERVER")
-	if server == "" {
-		server = DefaultServer
+	gonutsServer = os.Getenv("GONUTS_SERVER")
+	if gonutsServer == "" {
+		gonutsServer = DefaultServer
 	}
 }
 

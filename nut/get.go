@@ -45,7 +45,7 @@ func ArgToURL(s string) (url *url.URL) {
 
 	switch strings.Count(s, "/") {
 	case 0, 1:
-		url, err = url.Parse(fmt.Sprintf("http://%s/%s", server, s))
+		url, err = url.Parse(fmt.Sprintf("http://%s/%s", gonutsServer, s))
 	case 2:
 		p := strings.Split(s, "/")
 		url, err = url.Parse(fmt.Sprintf("http://%s/%s-%s.nut", p[0], p[1], p[2]))
