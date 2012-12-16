@@ -28,7 +28,7 @@ Publish nut on http://gonuts.io/ (requires registration with Google account).
 
 	tokenHelp := fmt.Sprintf("access token (see http://gonuts.io/-/me), may be read from ~/%s", ConfigFileName)
 	cmdPublish.Flag.StringVar(&publishToken, "token", "", tokenHelp)
-	cmdPublish.Flag.BoolVar(&publishV, "v", false, "be verbose")
+	cmdPublish.Flag.BoolVar(&publishV, "v", false, vHelp)
 }
 
 func runPublish(cmd *Command) {

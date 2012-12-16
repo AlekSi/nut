@@ -25,7 +25,7 @@ Checks given spec (.json) or nut (.nut) files.
 If no filenames are given, checks spec nut.json in current directory.
 	`
 
-	cmdCheck.Flag.BoolVar(&checkV, "v", false, "be verbose")
+	cmdCheck.Flag.BoolVar(&checkV, "v", false, vHelp)
 }
 
 func runCheck(cmd *Command) {

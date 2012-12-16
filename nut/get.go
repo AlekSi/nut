@@ -31,7 +31,7 @@ Download and install nut from http://gonuts.io/ or specified URL.
 	`
 
 	cmdGet.Flag.StringVar(&getP, "p", "", "install prefix in workspace, uses hostname if omitted")
-	cmdGet.Flag.BoolVar(&getV, "v", false, "be verbose")
+	cmdGet.Flag.BoolVar(&getV, "v", false, vHelp)
 }
 
 func ArgToURL(s string) (url *url.URL) {

@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"go/build"
 	"io/ioutil"
 	"log"
@@ -33,6 +34,7 @@ var (
 
 	config       Config
 	gonutsServer string
+	vHelp        string = fmt.Sprintf("be verbose, may be read from ~/%s", ConfigFileName)
 )
 
 func init() {

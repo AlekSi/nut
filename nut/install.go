@@ -29,7 +29,7 @@ and installs using 'go install'.
 
 	cmdInstall.Flag.BoolVar(&installNC, "nc", false, "no check (not recommended)")
 	cmdInstall.Flag.StringVar(&installP, "p", "localhost", "install prefix in workspace")
-	cmdInstall.Flag.BoolVar(&installV, "v", false, "be verbose")
+	cmdInstall.Flag.BoolVar(&installV, "v", false, vHelp)
 }
 
 func runInstall(cmd *Command) {

@@ -30,7 +30,7 @@ Packs package in current directory into nut.
 
 	cmdPack.Flag.BoolVar(&packNC, "nc", false, "no check (not recommended)")
 	cmdPack.Flag.StringVar(&packO, "o", "", "output filename")
-	cmdPack.Flag.BoolVar(&packV, "v", false, "be verbose")
+	cmdPack.Flag.BoolVar(&packV, "v", false, vHelp)
 }
 
 func runPack(cmd *Command) {

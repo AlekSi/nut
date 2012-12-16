@@ -22,7 +22,7 @@ Unpack nut into current directory.
 	`
 
 	cmdUnpack.Flag.BoolVar(&unpackNC, "nc", false, "no check (not recommended)")
-	cmdUnpack.Flag.BoolVar(&unpackV, "v", false, "be verbose")
+	cmdUnpack.Flag.BoolVar(&unpackV, "v", false, vHelp)
 }
 
 func runUnpack(cmd *Command) {

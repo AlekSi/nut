@@ -29,7 +29,7 @@ func init() {
 Generates or updates spec nut.json in for package in current directory.
 	`
 
-	cmdGenerate.Flag.BoolVar(&generateV, "v", false, "be verbose")
+	cmdGenerate.Flag.BoolVar(&generateV, "v", false, vHelp)
 }
 
 func runGenerate(cmd *Command) {
