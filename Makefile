@@ -32,6 +32,6 @@ test: fvb
 	cd ../test_nut2 && ../nut/gonut install -v test_nut2-0.0.2.nut
 
 test_server: test
-	cd ../test_nut1 && GONUTS_SERVER=localhost:8080 ../nut/gonut publish -v test_nut1-0.0.1.nut
-	cd ../test_nut2 && GONUTS_SERVER=localhost:8080 ../nut/gonut publish -v test_nut2-0.0.2.nut
-	cd ../test_nut1 && GONUTS_SERVER=localhost:8080 ../nut/gonut get -v test_nut2/0.0.2
+	cd ../test_nut1 && GONUTS_IO_SERVER=localhost:8080 ../nut/gonut publish -v test_nut1-0.0.1.nut
+	cd ../test_nut2 && GONUTS_IO_SERVER=localhost:8080 ../nut/gonut publish -v test_nut2-0.0.2.nut
+	cd ../test_nut1 && GONUTS_IO_SERVER=localhost:8080 ../nut/gonut get -v test_nut2/0.0.2

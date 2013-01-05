@@ -39,7 +39,7 @@ func runPublish(cmd *Command) {
 		publishV = config.V
 	}
 
-	url, err := url.Parse("http://" + GonutsServer)
+	url, err := url.Parse("http://" + NutImportPrefixes["gonuts.io"])
 	PanicIfErr(err)
 
 	url.RawQuery = "token=" + publishToken

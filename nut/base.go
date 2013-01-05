@@ -23,10 +23,8 @@ type Config struct {
 }
 
 const (
-	ConfigFileName   = ".nut.json"
-	ConfigFilePerm   = 0644
-	DefaultServer    = "gonuts.io"
-	WWWDefaultServer = "www." + DefaultServer
+	ConfigFileName = ".nut.json"
+	ConfigFilePerm = 0644
 )
 
 var (
@@ -34,7 +32,12 @@ var (
 	SrcDir       string // src directory in current workspace
 	NutDir       string // nut directory in current workspace
 
-	GonutsServer string
+	// Maps import prefixes to hosts serving nuts.
+	// Three reasons for it:
+	//   - third-party nut servers (TODO to be implemented);
+	//   - testing with dev_appserver;
+	//   - no GAE for second-level domains.
+	NutImportPrefixes = map[string]string{"gonuts.io": "www.gonuts.io"}
 
 	config Config
 	vHelp  string = fmt.Sprintf("be verbose, may be read from ~/%s", ConfigFileName)
@@ -87,9 +90,9 @@ func init() {
 		}
 	}
 
-	GonutsServer = os.Getenv("GONUTS_SERVER")
-	if GonutsServer == "" {
-		GonutsServer = WWWDefaultServer
+	env := os.Getenv("GONUTS_IO_SERVER")
+	if env != "" {
+		NutImportPrefixes["gonuts.io"] = env
 	}
 }
 
@@ -262,4 +265,15 @@ func InstallPackage(path string, verbose bool) {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+// Return imports present in NutImportPrefixes without altering them.
+func NutImports(imports []string) (nuts []string) {
+	for _, imp := range imports {
+		p := strings.Split(imp, "/")
+		if _, ok := NutImportPrefixes[p[0]]; ok {
+			nuts = append(nuts, imp)
+		}
+	}
+	return
 }

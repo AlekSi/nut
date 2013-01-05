@@ -35,22 +35,33 @@ Download and install nut from http://gonuts.io/ or specified URL.
 	cmdGet.Flag.BoolVar(&getV, "v", false, vHelp)
 }
 
-func ArgToURL(s string) (url *url.URL) {
-	var err error
+func ArgToURL(s string) *url.URL {
+	var p []string
+	var host string
+	var ok bool
 
+	// full URL - as is
 	if strings.HasPrefix(s, "http://") || strings.HasPrefix(s, "https://") {
-		url, err = url.Parse(s)
-		PanicIfErr(err)
-		return
+		goto parse
 	}
 
-	p := strings.Split(s, "/")
-	if len(p) > 1 && (p[0] == DefaultServer) {
-		s = strings.Join(p[1:], "/")
+	p = strings.Split(s, "/")
+	if len(p) > 0 {
+		host, ok = NutImportPrefixes[p[0]]
 	}
-	url, err = url.Parse(fmt.Sprintf("http://%s/%s", GonutsServer, s))
+	if ok {
+		// import path style
+		p[0] = "http://" + host
+		s = strings.Join(p, "/")
+	} else {
+		// short style
+		s = fmt.Sprintf("http://%s/%s", NutImportPrefixes["gonuts.io"], s)
+	}
+
+parse:
+	u, err := url.Parse(s)
 	PanicIfErr(err)
-	return
+	return u
 }
 
 func get(url *url.URL) (b []byte, err error) {
@@ -87,15 +98,6 @@ func get(url *url.URL) (b []byte, err error) {
 	return
 }
 
-func nutImports(imports []string) (nuts []string) {
-	for _, imp := range imports {
-		if strings.HasPrefix(imp, DefaultServer+"/") {
-			nuts = append(nuts, imp[len(DefaultServer)+1:])
-		}
-	}
-	return
-}
-
 func runGet(cmd *Command) {
 	if !getV {
 		getV = config.V
@@ -107,7 +109,7 @@ func runGet(cmd *Command) {
 	if len(args) == 0 {
 		pack, err := build.ImportDir(".", 0)
 		PanicIfErr(err)
-		args = nutImports(pack.Imports)
+		args = NutImports(pack.Imports)
 		if getV && len(args) != 0 {
 			log.Printf("%s depends on nuts: %s", pack.Name, strings.Join(args, ","))
 		}
@@ -124,7 +126,7 @@ func runGet(cmd *Command) {
 
 		nf := new(NutFile)
 		nf.ReadFrom(bytes.NewReader(b))
-		deps := nutImports(nf.Imports)
+		deps := NutImports(nf.Imports)
 		if getV && len(deps) != 0 {
 			log.Printf("%s depends on nuts: %s", nf.Name, strings.Join(deps, ","))
 		}
