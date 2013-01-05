@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"go/build"
 	"io/ioutil"
 	"log"
 	"net"
@@ -86,17 +87,34 @@ func get(url *url.URL) (b []byte, err error) {
 	return
 }
 
+func nutImports(imports []string) (nuts []string) {
+	for _, imp := range imports {
+		if strings.HasPrefix(imp, DefaultServer+"/") {
+			nuts = append(nuts, imp[len(DefaultServer)+1:])
+		}
+	}
+	return
+}
+
 func runGet(cmd *Command) {
 	if !getV {
 		getV = config.V
 	}
 
 	args := cmd.Flag.Args()
-	paths := make([]string, 0, len(args))
-	for {
-		if len(args) == 0 {
-			break
+
+	// zero arguments is a special case – install dependencies for package in current directory
+	if len(args) == 0 {
+		pack, err := build.ImportDir(".", 0)
+		PanicIfErr(err)
+		args = nutImports(pack.Imports)
+		if getV && len(args) != 0 {
+			log.Printf("%s depends on nuts: %s", pack.Name, strings.Join(args, ","))
 		}
+	}
+
+	installPaths := make([]string, 0, len(args))
+	for len(args) != 0 {
 		arg := args[0]
 		args = args[1:]
 
@@ -106,16 +124,11 @@ func runGet(cmd *Command) {
 
 		nf := new(NutFile)
 		nf.ReadFrom(bytes.NewReader(b))
-
-		for _, imp := range nf.Imports {
-			if strings.HasPrefix(imp, DefaultServer+"/") {
-				d := imp[len(DefaultServer)+1:]
-				if getV {
-					log.Printf("%s %s (%s) depends on %s.", nf.Name, nf.Version, arg, d)
-				}
-				args = append(args, d)
-			}
+		deps := nutImports(nf.Imports)
+		if getV && len(deps) != 0 {
+			log.Printf("%s depends on nuts: %s", nf.Name, strings.Join(deps, ","))
 		}
+		args = append(args, deps...)
 
 		p := getP
 		if p == "" {
@@ -133,10 +146,10 @@ func runGet(cmd *Command) {
 		path := filepath.Join(p, nf.Name, nf.Version.String())
 
 		UnpackNut(fileName, filepath.Join(SrcDir, path), true, getV)
-		paths = append(paths, path)
+		installPaths = append(installPaths, path)
 	}
 
-	for _, path := range paths {
+	for _, path := range installPaths {
 		InstallPackage(path, getV)
 	}
 }
