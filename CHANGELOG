@@ -1,7 +1,12 @@
+2013-yy-zz: develop
+  + `nut get` now downloads and installs all dependencies (recursive).
+  + `nut get` now may be used without arguments.
+  * Fix bug with `nut get` and www.-prefixed hosts.
+
 2012-12-16: 0.2.0
   + Add homepage to spec.
-  + Read -v from .nut.json.
-  * Write .nut.json in some cases.
+  + Read -v from ~/.nut.json.
+  * Write ~/.nut.json in some cases.
   * Do not panic in some cases.
   * Fix bug in `nut check` for spec file in other directory.
   - Remove confusing -server option (was useful only for development).

@@ -19,7 +19,7 @@ var (
 	cmdGet = &Command{
 		Run:       runGet,
 		UsageLine: "get [-p prefix] [-v] [name or URL]",
-		Short:     "download and install nut",
+		Short:     "download and install nut and dependencies",
 	}
 
 	getP string
@@ -28,7 +28,7 @@ var (
 
 func init() {
 	cmdGet.Long = `
-Download and install nut from http://gonuts.io/ or specified URL.
+Download and install nut and dependencies from http://gonuts.io/ or specified URL.
 	`
 
 	cmdGet.Flag.StringVar(&getP, "p", "", "install prefix in workspace, uses hostname if omitted")
