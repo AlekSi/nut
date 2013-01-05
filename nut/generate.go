@@ -26,7 +26,7 @@ var (
 
 func init() {
 	cmdGenerate.Long = `
-Generates or updates spec nut.json in for package in current directory.
+Generates or updates spec nut.json for package in current directory.
 	`
 
 	cmdGenerate.Flag.BoolVar(&generateV, "v", false, vHelp)
@@ -40,7 +40,6 @@ func runGenerate(cmd *Command) {
 	action := "updated"
 	var err error
 	var spec *Spec
-	var pack *build.Package
 
 	// read spec
 	if _, err = os.Stat(SpecFileName); os.IsNotExist(err) {
@@ -51,7 +50,7 @@ func runGenerate(cmd *Command) {
 	}
 
 	// read package
-	pack, err = build.ImportDir(".", 0)
+	pack, err := build.ImportDir(".", 0)
 	PanicIfErr(err)
 
 	// add example author
