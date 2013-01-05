@@ -69,7 +69,7 @@ func (v *Version) UnmarshalJSON(b []byte) error {
 func (v *Version) setVersion(version string) (err error) {
 	parsed := VersionRegexp.FindAllStringSubmatch(version, -1)
 	if (parsed == nil) || (len(parsed[0]) != 4) {
-		err = fmt.Errorf("Bad format for version %q: parsed as %#v", version, parsed)
+		err = fmt.Errorf("Bad format for version %q: parsed as %#v\nSee http://gonuts.io/-/doc/versioning", version, parsed)
 		return
 	}
 
