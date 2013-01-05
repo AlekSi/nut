@@ -3,6 +3,7 @@ all: test
 prepare:
 	go get -u launchpad.net/gocheck
 	go get -u github.com/AlekSi/test_nut1
+	-go get -u github.com/AlekSi/test_nut2
 
 # format, vet, build
 fvb:
