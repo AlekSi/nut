@@ -73,6 +73,7 @@ func get(url *url.URL) (b []byte, err error) {
 	if err != nil {
 		return
 	}
+	req.Header.Set("User-Agent", "nut getter")
 	req.Header.Set("Accept", "application/zip")
 
 	res, err := http.DefaultClient.Do(req)

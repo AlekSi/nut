@@ -53,6 +53,7 @@ func runPublish(cmd *Command) {
 		}
 		req, err := http.NewRequest("PUT", url.String(), bytes.NewReader(b))
 		PanicIfErr(err)
+		req.Header.Set("User-Agent", "nut publisher")
 		req.Header.Set("Content-Type", "application/zip")
 		req.ContentLength = int64(len(b)) // set Content-Length explicitly: dev_appserver.py doesn't support chunked encoding
 
