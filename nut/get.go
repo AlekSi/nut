@@ -116,7 +116,7 @@ func runGet(cmd *Command) {
 		}
 	}
 
-	installPaths := make([]string, 0, len(args))
+	installPaths := make(map[string]bool, len(args))
 	for len(args) != 0 {
 		arg := args[0]
 		args = args[1:]
@@ -149,10 +149,10 @@ func runGet(cmd *Command) {
 		path := filepath.Join(p, nf.Name, nf.Version.String())
 
 		UnpackNut(fileName, filepath.Join(SrcDir, path), true, getV)
-		installPaths = append(installPaths, path)
+		installPaths[path] = true
 	}
 
-	for _, path := range installPaths {
+	for path := range installPaths {
 		InstallPackage(path, getV)
 	}
 }
