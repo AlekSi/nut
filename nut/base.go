@@ -102,6 +102,12 @@ func PanicIfErr(err error) {
 	}
 }
 
+func FatalIfErr(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 // TODO common functions there are mess for now
 
 // Read spec file.
@@ -262,9 +268,7 @@ func InstallPackage(path string, verbose bool) {
 	if verbose || err != nil {
 		log.Print(string(out))
 	}
-	if err != nil {
-		log.Fatal(err)
-	}
+	FatalIfErr(err)
 }
 
 // Return imports present in NutImportPrefixes without altering them.

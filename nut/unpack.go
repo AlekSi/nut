@@ -44,7 +44,7 @@ func runUnpack(cmd *Command) {
 			for _, e := range errors {
 				log.Printf("    %s", e)
 			}
-			log.Fatalf("Please contact nut author.")
+			log.Fatal("Please contact nut author.")
 		}
 	}
 

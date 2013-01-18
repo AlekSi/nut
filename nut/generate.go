@@ -51,7 +51,7 @@ func runGenerate(cmd *Command) {
 
 	// read package
 	pack, err := build.ImportDir(".", 0)
-	PanicIfErr(err)
+	FatalIfErr(err)
 
 	// add example author
 	if len(spec.Authors) == 0 {

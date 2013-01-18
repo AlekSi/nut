@@ -70,7 +70,7 @@ func runPack(cmd *Command) {
 			for _, e := range errors {
 				log.Printf("    %s", e)
 			}
-			log.Fatalf("Hint: use 'nut check'.")
+			log.Fatal("Hint: use 'nut check'.")
 		}
 	}
 
