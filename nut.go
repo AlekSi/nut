@@ -8,6 +8,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"regexp"
 	"sort"
 	"strings"
@@ -51,6 +52,17 @@ func (nut *Nut) Check() (errors []string) {
 // Returns canonical filename in format <name>-<version>.nut
 func (nut *Nut) FileName() string {
 	return fmt.Sprintf("%s-%s.nut", nut.Name, nut.Version)
+}
+
+// Returns canonical filepath in format prefix/<name>-<version>.nut
+// (with "\" instead of "/" on Windows).
+func (nut *Nut) FilePath(prefix string) string {
+	return filepath.Join(prefix, nut.FileName())
+}
+
+// Returns canonical import path in format <prefix>/<name>/<version>
+func (nut *Nut) ImportPath(prefix string) string {
+	return fmt.Sprintf("%s/%s/%s", prefix, nut.Name, nut.Version)
 }
 
 // Code "Nut.ReadFrom()" will call Nut.Spec.ReadFrom(), while programmer likely wanted to call NutFile.ReadFrom().
