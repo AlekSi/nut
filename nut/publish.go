@@ -23,7 +23,7 @@ var (
 
 func init() {
 	cmdPublish.Long = `
-Publish nut on http://gonuts.io/ (requires registration with Google account).
+Publishes nut on http://gonuts.io/ (requires registration with Google account).
 	`
 
 	tokenHelp := fmt.Sprintf("access token (see http://gonuts.io/-/me), may be read from ~/%s", ConfigFileName)

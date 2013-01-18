@@ -28,7 +28,7 @@ var (
 
 func init() {
 	cmdGet.Long = `
-Download and install nut and dependencies from http://gonuts.io/ or specified URL.
+Downloads and installs nut and dependencies from http://gonuts.io/ or specified URL.
 	`
 
 	cmdGet.Flag.StringVar(&getP, "p", "", "install prefix in workspace, uses hostname if omitted")

@@ -18,7 +18,7 @@ var (
 	cmdGenerate = &Command{
 		Run:       runGenerate,
 		UsageLine: "generate [-v]",
-		Short:     "generate or update spec in current directory",
+		Short:     "generate or update spec for package in current directory",
 	}
 
 	generateV bool

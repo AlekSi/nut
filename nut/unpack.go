@@ -18,7 +18,7 @@ var (
 
 func init() {
 	cmdUnpack.Long = `
-Unpack nut into current directory.
+Unpacks nut into current directory.
 	`
 
 	cmdUnpack.Flag.BoolVar(&unpackNC, "nc", false, "no check (not recommended)")

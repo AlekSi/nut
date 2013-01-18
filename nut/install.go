@@ -13,7 +13,7 @@ var (
 	cmdInstall = &Command{
 		Run:       runInstall,
 		UsageLine: "install [-nc] [-p prefix] [-v] [filenames]",
-		Short:     "unpack, compile and install nut",
+		Short:     "unpack nut and install package",
 	}
 
 	installNC bool
