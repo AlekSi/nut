@@ -4,6 +4,7 @@ prepare:
 	go get -u launchpad.net/gocheck
 	go get -u github.com/AlekSi/test_nut1
 	-go get -u github.com/AlekSi/test_nut2
+	-go get -u github.com/AlekSi/test_nut3
 
 # format, vet, build
 fvb:
@@ -19,7 +20,7 @@ test: fvb
 	cd ../test_nut1 && ../nut/gonut check -v test_nut1-0.0.1.nut
 	cd ../test_nut1 && ../nut/gonut unpack -v test_nut1-0.0.1.nut
 
-	go test -v ./...
+	go test -v ./... -gocheck.v
 
 	cd ../test_nut1 && ../nut/gonut install -p gonuts.io -v test_nut1-0.0.1.nut
 
