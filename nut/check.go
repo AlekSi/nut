@@ -46,7 +46,7 @@ func runCheck(cmd *Command) {
 		case "json":
 			spec := ReadSpec(arg)
 			pack, err := build.ImportDir(".", 0)
-			PanicIfErr(err)
+			FatalIfErr(err)
 			errors = spec.Check()
 			errors = append(errors, CheckPackage(pack)...)
 
