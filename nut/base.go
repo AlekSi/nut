@@ -218,6 +218,11 @@ func PackNut(fileName string, files []string, verbose bool) {
 	if verbose {
 		log.Printf("Creating %s ...", fileName)
 	}
+	_, err = os.Stat(fileName)
+	if err == nil {
+		// required on Windows
+		PanicIfErr(os.Remove(fileName))
+	}
 	PanicIfErr(os.Rename(nutFile.Name(), fileName))
 	nutFile = nil
 	PanicIfErr(os.Chmod(fileName, NutFilePerm))
