@@ -15,6 +15,12 @@ import (
 // Global gocheck hook.
 func TestIntegration(t *testing.T) { TestingT(t) }
 
+const (
+	TestNut1 = "../../test_nut1"
+	TestNut2 = "../../test_nut2"
+	TestNut3 = "../../test_nut3"
+)
+
 var (
 	nutBin string
 )
@@ -70,4 +76,8 @@ func runCommand(c *C, dir, command string, args string, exitCode ...int) (stdout
 
 func runNut(c *C, dir string, args string, exitCode ...int) (stdout, stderr string) {
 	return runCommand(c, dir, nutBin, args, exitCode...)
+}
+
+func gitNoDiff(c *C, dir string) {
+	runCommand(c, dir, "git", "diff --exit-code")
 }
