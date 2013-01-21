@@ -88,7 +88,7 @@ func runGenerate(cmd *Command) {
 	errors := spec.Check()
 	errors = append(errors, CheckPackage(pack)...)
 	if len(errors) != 0 {
-		log.Print("\nYou should fix following issues:")
+		log.Print("\nNow you should edit nut.json to fix following errors:")
 		for _, e := range errors {
 			log.Printf("    %s", e)
 		}

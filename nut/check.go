@@ -59,7 +59,7 @@ func runCheck(cmd *Command) {
 		}
 
 		if len(errors) != 0 {
-			log.Printf("Found issues in %s:", arg)
+			log.Printf("Found errors in %s:", arg)
 			for _, e := range errors {
 				log.Printf("    %s", e)
 			}
