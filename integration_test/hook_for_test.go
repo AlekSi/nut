@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"syscall"
 	"testing"
@@ -15,14 +16,11 @@ import (
 // Global gocheck hook.
 func TestIntegration(t *testing.T) { TestingT(t) }
 
-const (
-	TestNut1 = "../../test_nut1"
+var (
+	TestNut1 = "../../test_nut1" // TODO filepath.FromSlash ?
 	TestNut2 = "../../test_nut2"
 	TestNut3 = "../../test_nut3"
-)
-
-var (
-	nutBin string
+	nutBin   string
 )
 
 func init() {
@@ -32,6 +30,11 @@ func init() {
 	}
 
 	nutBin = filepath.Join(wd, "..", "gonut")
+	if runtime.GOOS == "windows" {
+		// required for exec
+		os.Rename(nutBin, nutBin+".exe")
+		nutBin += ".exe"
+	}
 }
 
 func runCommand(c *C, dir, command string, args string, exitCode ...int) (stdout, stderr string) {
