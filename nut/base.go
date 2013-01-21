@@ -192,7 +192,7 @@ func PackNut(fileName string, files []string, verbose bool) {
 		}
 
 		fi, err := os.Stat(file)
-		PanicIfErr(err)
+		FatalIfErr(err)
 
 		fh, err := zip.FileInfoHeader(fi)
 		PanicIfErr(err)
