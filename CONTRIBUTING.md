@@ -1,7 +1,7 @@
 Filling issues and contributing to nut tool
 ===========================================
 
-First of all, thank you for your interest in making packaging better! There are number of ways you can help:
+First of all, thank you for your interest in making Go ecosystem better! There are number of ways you can help:
 
 * reporting bugs;
 * proposing features;
