@@ -3,6 +3,7 @@
   + `nut get` now may be used without arguments.
   + New API for Nut: FilePath(), ImportPath()
   * Fix bug with `nut get` and www.-prefixed hosts.
+  * Fix some issues on Windows.
 
 2012-12-16: 0.2.0
   + Add homepage to spec.
