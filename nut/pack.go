@@ -47,7 +47,9 @@ func runPack(cmd *Command) {
 		}
 	*/
 
-	pack, err := build.ImportDir(".", 0)
+	ctxt := build.Default
+	ctxt.UseAllFiles = true
+	pack, err := ctxt.ImportDir(".", 0)
 	PanicIfErr(err)
 
 	if pack.Name == "main" {
