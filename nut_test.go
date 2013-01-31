@@ -47,11 +47,12 @@ func (f *N) TestNutFile(c *C) {
 	c.Check(nf.Doc, Equals, "Package test_nut1 is used to test nut.")
 	c.Check(nf.GoFiles, DeepEquals, []string{"test_nut1.go", fmt.Sprintf("test_nut1_%s.go", runtime.GOOS)})
 
-	c.Check(len(nf.Reader.File), Equals, 6)
-	names := make([]string, 0, 4)
+	c.Check(len(nf.Reader.File), Equals, 11)
+	names := make([]string, 0, 11)
 	for _, f := range nf.Reader.File {
 		names = append(names, f.Name)
 	}
-	c.Check([]string{"test_nut1.go", "test_nut1_darwin.go", "test_nut1_linux.go", "README", "LICENSE", "nut.json"},
+	c.Check([]string{"test_nut1.go", "test_nut1_darwin.go", "test_nut1_freebsd.go", "test_nut1_linux.go", "test_nut1_netbsd.go",
+		"test_nut1_openbsd.go", "test_nut1_plan9.go", "test_nut1_windows.go", "README", "LICENSE", "nut.json"},
 		DeepEquals, names)
 }

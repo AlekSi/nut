@@ -2,6 +2,7 @@ package integration_test
 
 import (
 	"os"
+	"runtime"
 	"strings"
 
 	. "launchpad.net/gocheck"
@@ -22,7 +23,7 @@ func (l *L) TearDownTest(c *C) {
 	l.SetUpTest(c)
 }
 
-func (*L) TestGenerateCheckOk(c *C) {
+func (*L) TestGenerateCheck(c *C) {
 	_, stderr := runNut(c, TestNut1, "generate -v")
 	c.Check(stderr, Equals, "nut.json updated.")
 	gitNoDiff(c, TestNut1)
@@ -60,7 +61,7 @@ Found errors in nut.json:
 	c.Check(strings.HasPrefix(stderr, "no Go source files in ."), Equals, true)
 }
 
-func (*L) TestPackCheckUnpackOk(c *C) {
+func (*L) TestPackCheckUnpack(c *C) {
 	_, stderr := runNut(c, TestNut1, "pack -v")
 	c.Check(strings.HasSuffix(stderr, "test_nut1-0.0.1.nut created."), Equals, true)
 	gitNoDiff(c, TestNut1)
@@ -86,5 +87,10 @@ func (*L) TestPackCheckUnpackOk(c *C) {
 
 	c.Check(os.Remove(TestNut3+"/README"), Equals, nil)
 	_, stderr = runNut(c, TestNut3, "pack -nc -v", 1)
-	c.Check(strings.HasSuffix(stderr, "README: no such file or directory"), Equals, true)
+
+	if runtime.GOOS == "windows" {
+		c.Check(strings.HasSuffix(stderr, "README: The system cannot find the file specified."), Equals, true)
+	} else {
+		c.Check(strings.HasSuffix(stderr, "README: no such file or directory"), Equals, true)
+	}
 }
