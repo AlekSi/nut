@@ -37,6 +37,8 @@ func CheckPackage(pack *build.Package) (errors []string) {
 }
 
 // Describes nut – a Go package with associated meta-information.
+// It embeds Spec and build.Package to provide easy access to properties:
+// Nut.Name instead of Nut.Package.Name, Nut.Version instead of Nut.Spec.Version.
 type Nut struct {
 	Spec
 	build.Package
@@ -65,8 +67,10 @@ func (nut *Nut) ImportPath(prefix string) string {
 	return fmt.Sprintf("%s/%s/%s", prefix, nut.Name, nut.Version)
 }
 
-// Code "Nut.ReadFrom()" will call Nut.Spec.ReadFrom(), while programmer likely wanted to call NutFile.ReadFrom().
-// This method (with weird incompatible signature) is defined to prevent this typical error.
+// Since Nut embeds Spec, code "Nut.ReadFrom()" will call Nut.Spec.ReadFrom(),
+// while programmer likely wanted to call NutFile.ReadFrom().
+// This method (with weird incompatible signature) is defined to prevent this typical error
+// (I sometimes do myself, yuck).
 func (nut *Nut) ReadFrom(Do, Not, Call bool) (do, not, call bool) {
 	panic("Nut.ReadFrom() called: call Nut.Spec.ReadFrom() or NutFile.ReadFrom()")
 }
