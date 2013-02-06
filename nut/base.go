@@ -125,7 +125,7 @@ func ReadSpec(fileName string) (spec *Spec) {
 func ReadNut(fileName string) (b []byte, nf *NutFile) {
 	var err error
 	b, err = ioutil.ReadFile(fileName)
-	PanicIfErr(err)
+	FatalIfErr(err)
 	nf = new(NutFile)
 	_, err = nf.ReadFrom(bytes.NewReader(b))
 	PanicIfErr(err)
