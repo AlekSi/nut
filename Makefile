@@ -17,7 +17,6 @@ test: fvb
 	cd ../test_nut1 && ../nut/gonut pack
 	go test -v github.com/AlekSi/nut -gocheck.v
 	go test -v github.com/AlekSi/nut/nut -gocheck.v
-	go test -v -short github.com/AlekSi/nut/integration_test -gocheck.v
 
 integration_test_short: test
 	go test -v -short github.com/AlekSi/nut/integration_test -gocheck.v
