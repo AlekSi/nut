@@ -54,7 +54,7 @@ func init() {
 		} else {
 			log.Printf("Workspaces in GOPATH environment variable (%s), or their src subpaths don't exist.", env)
 		}
-		log.Fatal("Setup a workspace as described there: http://golang.org/doc/code.html")
+		log.Fatal("Setup a workspace (GOPATH) as described there: http://golang.org/doc/code.html")
 	}
 
 	SrcDir = srcDirs[0]
