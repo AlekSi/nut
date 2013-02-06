@@ -13,8 +13,8 @@ import (
 type Spec struct {
 	Version    Version
 	Authors    []Person
-	ExtraFiles []string `json:",omitempty"`
-	Homepage   string   `json:",omitempty"`
+	ExtraFiles []string
+	Homepage   string
 }
 
 // Describes nut author.
