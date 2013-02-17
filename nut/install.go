@@ -28,7 +28,11 @@ func init() {
 Copies nuts into GOPATH/nut/<prefix>/<vendor>/<name>-<version>.nut,
 unpacks them into GOPATH/src/<prefix>/<vendor>/<name> and
 installs using 'go install'.
-	`
+
+Examples:
+    nut install test_nut1-0.0.1.nut
+    nut install -p gonuts.io test_nut1-0.0.1.nut
+`
 
 	cmdInstall.Flag.BoolVar(&installNC, "nc", false, "no check (not recommended)")
 	cmdInstall.Flag.StringVar(&installP, "p", "localhost", "install prefix in workspace")

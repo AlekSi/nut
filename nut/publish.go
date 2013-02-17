@@ -24,9 +24,12 @@ var (
 func init() {
 	cmdPublish.Long = `
 Publishes nut on http://gonuts.io/ (requires registration with Google account).
-	`
 
-	tokenHelp := fmt.Sprintf("access token (see http://gonuts.io/-/me), may be read from ~/%s", ConfigFileName)
+Examples:
+    nut publish test_nut1-0.0.1.nut
+`
+
+	tokenHelp := fmt.Sprintf("access token from http://gonuts.io/-/me (may be read from ~/%s)", ConfigFileName)
 	cmdPublish.Flag.StringVar(&publishToken, "token", "", tokenHelp)
 	cmdPublish.Flag.BoolVar(&publishV, "v", false, vHelp)
 }

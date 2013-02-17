@@ -23,7 +23,12 @@ func init() {
 	cmdCheck.Long = `
 Checks given spec (.json) or nut (.nut) files.
 If no filenames are given, checks spec nut.json in current directory.
-	`
+
+Examples:
+    nut check
+    nut check test_nut1/nut.json
+    nut check test_nut1/test_nut1-0.0.1.nut
+`
 
 	cmdCheck.Flag.BoolVar(&checkV, "v", false, vHelp)
 }

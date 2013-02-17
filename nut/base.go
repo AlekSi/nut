@@ -40,7 +40,7 @@ var (
 	NutImportPrefixes = map[string]string{"gonuts.io": "www.gonuts.io"}
 
 	config Config
-	vHelp  string = fmt.Sprintf("be verbose, may be read from ~/%s", ConfigFileName)
+	vHelp  string = fmt.Sprintf("be verbose (may be read from ~/%s)", ConfigFileName)
 )
 
 func init() {

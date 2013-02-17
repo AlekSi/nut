@@ -27,7 +27,10 @@ var (
 func init() {
 	cmdGenerate.Long = `
 Generates or updates spec nut.json for package in current directory.
-	`
+
+Examples:
+    nut generate
+`
 
 	cmdGenerate.Flag.BoolVar(&generateV, "v", false, vHelp)
 }

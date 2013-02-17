@@ -26,7 +26,10 @@ var (
 func init() {
 	cmdPack.Long = `
 Packs package in current directory into nut.
-	`
+
+Examples:
+    nut pack
+`
 
 	cmdPack.Flag.BoolVar(&packNC, "nc", false, "no check (not recommended)")
 	cmdPack.Flag.StringVar(&packO, "o", "", "output filename")
