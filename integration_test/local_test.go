@@ -13,10 +13,7 @@ type L struct{}
 var _ = Suite(&L{})
 
 func (*L) SetUpTest(c *C) {
-	for _, dir := range []string{TestNut1, TestNut2, TestNut3} {
-		runCommand(c, dir, "git", "reset --hard origin/master")
-		runCommand(c, dir, "git", "clean -xdf")
-	}
+	setupTest(c)
 }
 
 func (l *L) TearDownTest(c *C) {

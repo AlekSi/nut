@@ -2,6 +2,7 @@ package integration_test
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -17,7 +18,7 @@ import (
 func TestIntegration(t *testing.T) { TestingT(t) }
 
 var (
-	TestNut1 = "../../test_nut1" // TODO filepath.FromSlash ?
+	TestNut1 = "../../test_nut1"
 	TestNut2 = "../../test_nut2"
 	TestNut3 = "../../test_nut3"
 	nutBin   string
@@ -34,6 +35,27 @@ func init() {
 		// required for exec
 		os.Rename(nutBin, nutBin+".exe")
 		nutBin += ".exe"
+	}
+}
+
+func setupTest(c *C) {
+	for _, dir := range []string{TestNut1, TestNut2, TestNut3} {
+		runCommand(c, dir, "git", "reset --hard origin/master")
+		runCommand(c, dir, "git", "clean -xdf")
+	}
+
+	oa := fmt.Sprintf("%s_%s", runtime.GOOS, runtime.GOARCH)
+	for _, dir := range []string{
+		"../../../../gonuts.io/",
+		"../../../../localhost/",
+		"../../../../../pkg/" + oa + "/gonuts.io/",
+		"../../../../../pkg/" + oa + "/localhost/",
+		"../../../../../bin/",
+		"../../../../../nut/",
+	} {
+		// dir = filepath.FromSlash(dir)
+		c.Logf("%s\n", dir)
+		c.Assert(os.RemoveAll(dir), IsNil)
 	}
 }
 

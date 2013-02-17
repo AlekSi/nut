@@ -34,7 +34,7 @@ Contributing changes
 1. Read all previous sections first.
 2. Nut tool uses [Git Flow](http://nvie.com/posts/a-successful-git-branching-model/). Make sure you are starting with branch `develop` for new feature and `master` for bug fix.
 3. You can make small changes right in the web interface. Spot a typo? Fix it! :)
-4. For bigger changes make a fork on GitHub and clone it into `$GOPATH/src/github.com/AlekSi/nut`.
+4. For bigger changes setup a separate workspace a.k.a. GOPATH (strictly required for integration tests), make a fork on GitHub and clone it into `$GOPATH/src/github.com/AlekSi/nut`.
 5. Run `make prepare` to install remote packages and `make` to run unit and integration tests.
 6. Use `git flow feature start` or `git flow hotfix start` to create a branch.
 7. Make your changes. Run and update tests. Do not change version.
