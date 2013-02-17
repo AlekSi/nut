@@ -98,6 +98,10 @@ func runNut(c *C, dir string, args string, exitCode ...int) (stdout, stderr stri
 	return runCommand(c, dir, nutBin, args, exitCode...)
 }
 
+func runGo(c *C, dir string, args string, exitCode ...int) (stdout, stderr string) {
+	return runCommand(c, dir, "go", args, exitCode...)
+}
+
 func gitNoDiff(c *C, dir string) {
 	runCommand(c, dir, "git", "diff --exit-code")
 }

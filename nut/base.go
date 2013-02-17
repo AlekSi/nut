@@ -151,22 +151,6 @@ func WriteNut(b []byte, prefix string, verbose bool) string {
 	return dstFilepath
 }
 
-// Copy nut to GOPATH/nut/<prefix>/<name>-<version>.nut
-func CopyNut(nutFilepath string, prefix string, verbose bool) {
-	b, nf := ReadNut(nutFilepath)
-
-	// create GOPATH/nut/<prefix>
-	dir := filepath.Join(NutDir, prefix)
-	PanicIfErr(os.MkdirAll(dir, WorkspaceDirPerm))
-
-	// write file
-	dstFilepath := filepath.Join(dir, nf.FileName())
-	if verbose {
-		log.Printf("Copying %s to %s ...", nutFilepath, dstFilepath)
-	}
-	PanicIfErr(ioutil.WriteFile(dstFilepath, b, NutFilePerm))
-}
-
 // Pack files into nut file with given fileName.
 func PackNut(fileName string, files []string, verbose bool) {
 	// write nut to temporary file first

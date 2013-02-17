@@ -1,4 +1,5 @@
 2013-02-zz: develop
+  + Add vendors.
   + `nut get` now downloads and installs all dependencies (recursive).
   + `nut get` now may be used without arguments.
   + New API for Nut: FilePath(), ImportPath()

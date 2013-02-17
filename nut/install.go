@@ -1,7 +1,9 @@
 package main
 
 import (
+	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
 )
 
@@ -23,8 +25,8 @@ var (
 
 func init() {
 	cmdInstall.Long = `
-Copies nuts into GOPATH/nut/<prefix>, unpacks them into GOPATH/src/<prefix>/<name>/<version>
-and installs using 'go install'.
+Copies nuts into GOPATH/nut/<prefix>/<vendor>, unpacks them into
+GOPATH/src/<prefix>/<vendor>/<name>/<version> and installs using 'go install'.
 	`
 
 	cmdInstall.Flag.BoolVar(&installNC, "nc", false, "no check (not recommended)")
@@ -38,7 +40,7 @@ func runInstall(cmd *Command) {
 	}
 
 	for _, arg := range cmd.Flag.Args() {
-		_, nf := ReadNut(arg)
+		b, nf := ReadNut(arg)
 
 		if nf.Name == "main" {
 			log.Fatal(`Binaries (package "main") are not supported yet.`)
@@ -56,9 +58,20 @@ func runInstall(cmd *Command) {
 			}
 		}
 
-		CopyNut(arg, installP, installV)
-		path := filepath.Join(installP, nf.Name, nf.Version.String())
-		UnpackNut(arg, filepath.Join(SrcDir, path), true, installV)
-		InstallPackage(path, installV)
+		// copy nut
+		dstFile := filepath.Join(NutDir, nf.FilePath(installP))
+		if installV {
+			log.Printf("Copying %s to %s ...", arg, dstFile)
+		}
+		PanicIfErr(os.MkdirAll(filepath.Dir(dstFile), WorkspaceDirPerm))
+		PanicIfErr(ioutil.WriteFile(dstFile, b, NutFilePerm))
+
+		srcPath := filepath.Join(SrcDir, nf.ImportPath(installP))
+		if installV {
+			log.Printf("Unpacking into %s ...", srcPath)
+		}
+		UnpackNut(dstFile, srcPath, true, installV)
+
+		InstallPackage(nf.ImportPath(installP), installV)
 	}
 }

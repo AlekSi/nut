@@ -59,15 +59,15 @@ func (nut *Nut) FileName() string {
 	return fmt.Sprintf("%s-%s.nut", nut.Name, nut.Version)
 }
 
-// Returns canonical filepath in format prefix/<name>-<version>.nut
+// Returns canonical filepath in format <prefix>/<vendor>/<name>-<version>.nut
 // (with "\" instead of "/" on Windows).
 func (nut *Nut) FilePath(prefix string) string {
-	return filepath.Join(prefix, nut.FileName())
+	return filepath.Join(prefix, nut.Vendor, nut.FileName())
 }
 
-// Returns canonical import path in format <prefix>/<name>/<version>
+// Returns canonical import path in format <prefix>/<vendor>/<name>/<version>
 func (nut *Nut) ImportPath(prefix string) string {
-	return fmt.Sprintf("%s/%s/%s", prefix, nut.Name, nut.Version)
+	return fmt.Sprintf("%s/%s/%s/%s", prefix, nut.Vendor, nut.Name, nut.Version)
 }
 
 // Since Nut embeds Spec, code "Nut.ReadFrom()" will call Nut.Spec.ReadFrom(),

@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/url"
+	"regexp"
 	"strings"
 )
 
@@ -29,6 +30,8 @@ const (
 	ExampleEmail    = "crazy.nutter@gonuts.io"
 	SpecFileName    = "nut.json"
 )
+
+var VendorRegexp = regexp.MustCompile(`^[0-9A-Za-z_]+$`)
 
 // ReadFrom reads spec from r until EOF.
 // The return value n is the number of bytes read.
@@ -68,6 +71,11 @@ func (spec *Spec) Check() (errors []string) {
 	// check version
 	if spec.Version.String() == "0.0.0" {
 		errors = append(errors, fmt.Sprintf("Version %q is invalid.", spec.Version))
+	}
+
+	// check vendor
+	if !VendorRegexp.MatchString(spec.Vendor) {
+		errors = append(errors, fmt.Sprintf(`Vendor should contain only word characters (match "%s").`, VendorRegexp))
 	}
 
 	// author should be specified
