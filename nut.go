@@ -23,6 +23,9 @@ func CheckPackage(pack *build.Package) (errors []string) {
 	if strings.HasPrefix(pack.Name, "_") {
 		errors = append(errors, `Package name should not starts with "_".`)
 	}
+	if strings.HasSuffix(pack.Name, "_") {
+		errors = append(errors, `Package name should not ends with "_".`)
+	}
 	if strings.HasSuffix(pack.Name, "_test") {
 		errors = append(errors, `Package name should not ends with "_test".`)
 	}

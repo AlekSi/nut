@@ -5,6 +5,7 @@
   * `nut pack` now includes files for all OSes.
   * Fix bug with `nut get` and www.-prefixed hosts.
   * Fix some issues on Windows.
+  - Disallow package names ending with "_".
 
 2012-12-16: 0.2.0
   + Add homepage to spec.
