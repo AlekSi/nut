@@ -49,7 +49,7 @@ func runPublish(cmd *Command) {
 
 	for _, arg := range cmd.Flag.Args() {
 		b, nf := ReadNut(arg)
-		url.Path = fmt.Sprintf("/%s/%s", nf.Name, nf.Version)
+		url.Path = fmt.Sprintf("/%s/%s/%s", nf.Vendor, nf.Name, nf.Version)
 
 		if publishV {
 			log.Printf("Putting %s to %s ...", arg, url)
