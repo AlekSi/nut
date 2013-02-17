@@ -33,15 +33,15 @@ func (*R) TestPublishGet(c *C) {
 	gitNoDiff(c, TestNut2)
 
 	_, stderr = runNut(c, TestNut1, "publish -v test_nut1-0.0.1.nut")
-	c.Check(strings.HasSuffix(stderr, `Nut AlekSi/test_nut1 version 0.0.1 published.`), Equals, true)
+	c.Check(strings.HasSuffix(stderr, `Nut debug/test_nut1 version 0.0.1 published.`), Equals, true)
 	gitNoDiff(c, TestNut1)
 
 	_, stderr = runNut(c, TestNut1, "publish -v test_nut1-0.0.1.nut", 1)
-	c.Check(strings.HasSuffix(stderr, `Nut AlekSi/test_nut1 version 0.0.1 already exists.`), Equals, true)
+	c.Check(strings.HasSuffix(stderr, `Nut debug/test_nut1 version 0.0.1 already exists.`), Equals, true)
 	gitNoDiff(c, TestNut1)
 
 	_, stderr = runNut(c, TestNut2, "publish -v test_nut2-0.0.2.nut")
-	c.Check(strings.HasSuffix(stderr, `Nut AlekSi/test_nut2 version 0.0.2 published.`), Equals, true)
+	c.Check(strings.HasSuffix(stderr, `Nut debug/test_nut2 version 0.0.2 published.`), Equals, true)
 	gitNoDiff(c, TestNut2)
 
 	// _, stderr = runNut(c, "", "get -v test_nut2/0.0.2")

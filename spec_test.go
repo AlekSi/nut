@@ -37,7 +37,7 @@ func (f *S) TestReadWrite(c *C) {
 	c.Assert(err, IsNil)
 
 	c.Check(spec.Version.String(), Equals, "0.0.1")
-	c.Check(spec.Vendor, Equals, "AlekSi")
+	c.Check(spec.Vendor, Equals, "debug")
 	c.Check(len(spec.Authors), Equals, 1)
 	c.Check(spec.Authors[0], Equals, Person{FullName: "Alexey Palazhchenko", Email: "alexey.palazhchenko@gmail.com"})
 	c.Check(len(spec.ExtraFiles), Equals, 2)
