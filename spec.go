@@ -12,6 +12,7 @@ import (
 // Describes part of nut meta-information, stored in file nut.json.
 type Spec struct {
 	Version    Version
+	Vendor     string
 	Authors    []Person
 	ExtraFiles []string
 	Homepage   string
