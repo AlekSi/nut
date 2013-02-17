@@ -48,8 +48,7 @@ func setupTest(c *C) {
 		"../../../../../bin/",
 		"../../../../../nut/",
 	} {
-		// dir = filepath.FromSlash(dir)
-		c.Logf("%s\n", dir)
+		c.Logf("%s", dir)
 		c.Assert(os.RemoveAll(dir), IsNil)
 	}
 }

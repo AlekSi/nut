@@ -1,6 +1,9 @@
 package integration_test
 
 import (
+	"net/http"
+	"net/url"
+	"os"
 	"strings"
 	"testing"
 
@@ -13,6 +16,14 @@ var _ = Suite(&R{})
 
 func (*R) SetUpTest(c *C) {
 	setupTest(c)
+
+	server := os.Getenv("GONUTS_IO_SERVER")
+	u, err := url.Parse("http://" + server + "/debug/prepare_test")
+	c.Assert(err, IsNil)
+	res, err := http.Get(u.String())
+	c.Assert(err, IsNil)
+	res.Body.Close()
+	c.Assert(res.StatusCode, Equals, 200)
 }
 
 func (r *R) TearDownTest(c *C) {
@@ -22,6 +33,7 @@ func (r *R) TearDownTest(c *C) {
 func (*R) TestPublishGet(c *C) {
 	if testing.Short() {
 		c.Skip("-short passed")
+		return
 	}
 
 	_, stderr := runNut(c, TestNut1, "pack -v")
