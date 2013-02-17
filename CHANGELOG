@@ -1,9 +1,10 @@
 2013-02-zz: develop
   + Add vendors.
+  * `nut install` now installs into <prefix>/<vendor>/<name> (omits version component).
   + `nut get` now downloads and installs all dependencies (recursive).
   + `nut get` now may be used without arguments.
-  + New API for Nut: FilePath(), ImportPath()
   * `nut pack` now includes files for all OSes.
+  + New API for Nut: FilePath(), ImportPath()
   * Fix bug with `nut get` and www.-prefixed hosts.
   * Fix some issues on Windows.
   - Disallow package names ending with "_".

@@ -106,7 +106,7 @@ func (*L) TestPackInstall(c *C) {
 	gitNoDiff(c, TestNut1)
 
 	_, stderr = runNut(c, TestNut1, "install -v test_nut1-0.0.1.nut")
-	c.Check(strings.HasSuffix(stderr, "localhost/AlekSi/test_nut1/0.0.1"), Equals, true)
+	c.Check(strings.HasSuffix(stderr, "localhost/AlekSi/test_nut1"), Equals, true)
 
 	stdout, _ = runGo(c, TestNut1, "list all")
 	var newPackages []string
@@ -115,5 +115,5 @@ func (*L) TestPackInstall(c *C) {
 			newPackages = append(newPackages, p)
 		}
 	}
-	c.Check(newPackages, DeepEquals, []string{"localhost/AlekSi/test_nut1/0.0.1"})
+	c.Check(newPackages, DeepEquals, []string{"localhost/AlekSi/test_nut1"})
 }
