@@ -18,7 +18,7 @@ import (
 var (
 	cmdGet = &Command{
 		Run:       runGet,
-		UsageLine: "get [-p prefix] [-v] [name or URL]",
+		UsageLine: "get [-p prefix] [-v] [name, import path or URL]",
 		Short:     "download and install nut and dependencies",
 	}
 
@@ -29,6 +29,14 @@ var (
 func init() {
 	cmdGet.Long = `
 Downloads and installs nut and dependencies from http://gonuts.io/ or specified URL.
+
+Examples:
+  nut install AlekSi/nut
+  nut install AlekSi/nut/0.2.0
+  nut install gonuts.io/AlekSi/nut
+  nut install gonuts.io/AlekSi/nut/0.2.0
+  nut install http://gonuts.io/AlekSi/nut
+  nut install http://gonuts.io/AlekSi/nut/0.2.0
 	`
 
 	cmdGet.Flag.StringVar(&getP, "p", "", "install prefix in workspace, uses hostname if omitted")

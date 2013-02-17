@@ -29,14 +29,16 @@ func (*G) TestArgToURL(c *C) {
 
 	// import path style
 	c.Check(ArgToURL("gonuts.io/AlekSi/test_nut1").String(), Equals, "http://server/AlekSi/test_nut1")
+	c.Check(ArgToURL("gonuts.io/AlekSi/test_nut1/0.0.1").String(), Equals, "http://server/AlekSi/test_nut1/0.0.1")
 	c.Check(ArgToURL("express42.com/nuts/AlekSi/test_nut1").String(), Equals, "http://express42.com/nuts/AlekSi/test_nut1")
+	c.Check(ArgToURL("express42.com/nuts/AlekSi/test_nut1/0.0.1").String(), Equals, "http://express42.com/nuts/AlekSi/test_nut1/0.0.1")
 
 	// full URL - as is
 	c.Check(ArgToURL("http://www.gonuts.io/AlekSi/test_nut1").String(), Equals, "http://www.gonuts.io/AlekSi/test_nut1")
 	c.Check(ArgToURL("http://www.gonuts.io/AlekSi/test_nut1/0.0.1").String(), Equals, "http://www.gonuts.io/AlekSi/test_nut1/0.0.1")
 	c.Check(ArgToURL("http://localhost:8080/AlekSi/test_nut1-0.0.1.nut").String(), Equals, "http://localhost:8080/AlekSi/test_nut1-0.0.1.nut")
-	c.Check(ArgToURL("http://express42.com/nuts/AlekSi/test_nut1-0.0.1.nut").String(), Equals, "http://express42.com/nuts/AlekSi/test_nut1-0.0.1.nut")
-	c.Check(ArgToURL("https://express42.com/nuts/AlekSi/test_nut1-0.0.1.nut").String(), Equals, "https://express42.com/nuts/AlekSi/test_nut1-0.0.1.nut")
+	c.Check(ArgToURL("http://example.com/nuts/test_nut1-0.0.1.nut").String(), Equals, "http://example.com/nuts/test_nut1-0.0.1.nut")
+	c.Check(ArgToURL("https://example.com/nuts/test_nut1-0.0.1.nut").String(), Equals, "https://example.com/nuts/test_nut1-0.0.1.nut")
 }
 
 func (*G) TestNutImports(c *C) {

@@ -25,8 +25,9 @@ var (
 
 func init() {
 	cmdInstall.Long = `
-Copies nuts into GOPATH/nut/<prefix>/<vendor>, unpacks them into
-GOPATH/src/<prefix>/<vendor>/<name>/<version> and installs using 'go install'.
+Copies nuts into GOPATH/nut/<prefix>/<vendor>/<name>-<version>.nut,
+unpacks them into GOPATH/src/<prefix>/<vendor>/<name> and
+installs using 'go install'.
 	`
 
 	cmdInstall.Flag.BoolVar(&installNC, "nc", false, "no check (not recommended)")
