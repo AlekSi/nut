@@ -21,21 +21,21 @@ var _ = Suite(&N{})
 
 func (f *N) SetUpTest(c *C) {
 	file, err := os.Open("../test_nut1/test_nut1-0.0.1.nut")
-	c.Assert(err, Equals, nil)
+	c.Assert(err, IsNil)
 	f.f = file
 
 	b, err := ioutil.ReadAll(f.f)
-	c.Assert(err, Equals, nil)
+	c.Assert(err, IsNil)
 	f.b = bytes.NewBuffer(b)
 
 	_, err = file.Seek(0, 0)
-	c.Assert(err, Equals, nil)
+	c.Assert(err, IsNil)
 }
 
 func (f *N) TestNutFile(c *C) {
 	nf := new(NutFile)
 	_, err := nf.ReadFrom(f.f)
-	c.Assert(err, Equals, nil)
+	c.Assert(err, IsNil)
 
 	c.Check(nf.Spec.Version.String(), Equals, "0.0.1")
 	c.Check(nf.Version.String(), Equals, "0.0.1")

@@ -44,16 +44,16 @@ func (f *V) TestNew(c *C) {
 func (f *V) TestLess(c *C) {
 	for i, vi := range f.versions {
 		left, err := NewVersion(vi)
-		c.Assert(err, Equals, nil)
+		c.Assert(err, IsNil)
 
 		for _, vj := range f.versions[:i] {
 			right, err := NewVersion(vj)
-			c.Assert(err, Equals, nil)
+			c.Assert(err, IsNil)
 			c.Check(left.Less(right), Equals, false, Commentf("Expected %s >= %s", left, right))
 		}
 		for _, vj := range f.versions[i+1:] {
 			right, err := NewVersion(vj)
-			c.Assert(err, Equals, nil)
+			c.Assert(err, IsNil)
 			c.Check(left.Less(right), Equals, true, Commentf("Expected %s < %s", left, right))
 		}
 	}
@@ -62,15 +62,15 @@ func (f *V) TestLess(c *C) {
 func (f *V) TestJSON(c *C) {
 	for _, vs := range f.versions {
 		v, err := NewVersion(vs)
-		c.Assert(err, Equals, nil)
+		c.Assert(err, IsNil)
 
 		b, err := json.Marshal(v)
 		c.Check(string(b), Equals, `"`+vs+`"`)
-		c.Assert(err, Equals, nil)
+		c.Assert(err, IsNil)
 
 		v2 := new(Version)
 		err = json.Unmarshal(b, v2)
 		c.Check(v2, DeepEquals, v)
-		c.Assert(err, Equals, nil)
+		c.Assert(err, IsNil)
 	}
 }

@@ -29,7 +29,7 @@ func (*L) TestGenerateCheck(c *C) {
 	c.Check(stderr, Equals, "nut.json looks good.")
 	gitNoDiff(c, TestNut1)
 
-	c.Check(os.Remove(TestNut2+"/nut.json"), Equals, nil)
+	c.Check(os.Remove(TestNut2+"/nut.json"), IsNil)
 	_, stderr = runNut(c, TestNut2, "generate -v")
 	expected := `
 nut.json generated.
@@ -41,7 +41,7 @@ Now you should edit nut.json to fix following errors:
 After that run 'nut check' to check spec again.`[1:]
 	c.Check(stderr, Equals, expected)
 	_, err := os.Stat(TestNut2 + "/nut.json")
-	c.Check(err, Equals, nil)
+	c.Check(err, IsNil)
 
 	_, stderr = runNut(c, TestNut2, "check -v", 1)
 	expected = `
@@ -50,7 +50,7 @@ Found errors in nut.json:
     "Crazy Nutter" is not a real person.`[1:]
 	c.Check(stderr, Equals, expected)
 
-	c.Check(os.Remove(TestNut3+"/test_nut3.go"), Equals, nil)
+	c.Check(os.Remove(TestNut3+"/test_nut3.go"), IsNil)
 	_, stderr = runNut(c, TestNut3, "generate -v", 1)
 	c.Check(stderr, Equals, "no Go source files in .")
 
@@ -67,12 +67,12 @@ func (*L) TestPackCheckUnpack(c *C) {
 	c.Check(strings.HasSuffix(stderr, "test_nut1-0.0.1.nut looks good."), Equals, true)
 	gitNoDiff(c, TestNut1)
 
-	c.Check(os.Remove(TestNut1+"/test_nut1.go"), Equals, nil)
+	c.Check(os.Remove(TestNut1+"/test_nut1.go"), IsNil)
 	_, stderr = runNut(c, TestNut1, "unpack -v test_nut1-0.0.1.nut")
 	c.Check(strings.HasSuffix(stderr, "test_nut1-0.0.1.nut unpacked."), Equals, true)
 	gitNoDiff(c, TestNut1)
 
-	c.Check(os.Remove(TestNut2+"/nut.json"), Equals, nil)
+	c.Check(os.Remove(TestNut2+"/nut.json"), IsNil)
 	runNut(c, TestNut2, "generate -v")
 	_, stderr = runNut(c, TestNut2, "pack -v", 1)
 	c.Check(strings.HasPrefix(stderr, "Found errors:"), Equals, true)
@@ -82,7 +82,7 @@ func (*L) TestPackCheckUnpack(c *C) {
 	_, stderr = runNut(c, TestNut2, "check -v test_nut2-0.0.0.nut", 1)
 	c.Check(strings.HasPrefix(stderr, "Found errors in test_nut2-0.0.0.nut:"), Equals, true)
 
-	c.Check(os.Remove(TestNut3+"/README"), Equals, nil)
+	c.Check(os.Remove(TestNut3+"/README"), IsNil)
 	_, stderr = runNut(c, TestNut3, "pack -nc -v", 1)
 
 	if runtime.GOOS == "windows" {
