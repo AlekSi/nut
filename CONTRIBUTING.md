@@ -13,7 +13,7 @@ The following sections describes those scenarios. Golden rule: communicate first
 Reporting bugs
 --------------
 
-1. Make sure bug is reproducible with latest released version: `go get -u github.com/AlekSi/nut/nut`.
+1. Make sure bug is reproducible with latest released version: `go get -u github.com/AlekSi/nut/...`.
 2. Search for [existing bug report](https://github.com/AlekSi/nut/issues).
 3. Create a new issue if needed. Please do not assign any label.
 4. Include output of:
