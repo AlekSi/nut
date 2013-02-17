@@ -27,7 +27,7 @@ func NewVersion(version string) (v *Version, err error) {
 func (v Version) String() string {
 	res := fmt.Sprintf("%d.%d.%d", v.Major, v.Minor, v.Patch)
 	if !VersionRegexp.MatchString(res) { // sanity check
-		panic(fmt.Sprintf("%s not matches %s", res, VersionRegexp))
+		panic(fmt.Errorf("%s not matches %s", res, VersionRegexp))
 	}
 	return res
 }
@@ -69,7 +69,7 @@ func (v *Version) UnmarshalJSON(b []byte) error {
 func (v *Version) setVersion(version string) (err error) {
 	parsed := VersionRegexp.FindAllStringSubmatch(version, -1)
 	if (parsed == nil) || (len(parsed[0]) != 4) {
-		err = fmt.Errorf("Bad format for version %q: parsed as %#v\nSee http://gonuts.io/-/doc/versioning", version, parsed)
+		err = fmt.Errorf("Bad format for version %q. See http://gonuts.io/-/doc/versioning", version)
 		return
 	}
 

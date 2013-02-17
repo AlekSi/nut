@@ -8,12 +8,13 @@ import (
 )
 
 type V struct {
-	versions []string
+	versions    []string
+	badVersions []string
 }
 
 var _ = Suite(&V{})
 
-func (f *V) SetUpTest(c *C) {
+func (f *V) SetUpSuite(c *C) {
 	f.versions = []string{
 		"0.0.0", "0.0.1", "0.0.2",
 		"0.1.0", "0.1.1", "0.1.2",
@@ -21,13 +22,22 @@ func (f *V) SetUpTest(c *C) {
 		"1.1.0", "1.1.1", "1.1.2",
 		"1.1.10", "1.10.1", "10.1.1", "10.10.10",
 	}
+	f.badVersions = []string{
+		"1.0.-1",
+	}
 }
 
 func (f *V) TestNew(c *C) {
 	for _, vs := range f.versions {
 		v, err := NewVersion(vs)
-		c.Check(err, Equals, nil)
+		c.Check(err, IsNil)
 		c.Check(v.String(), Equals, vs)
+	}
+
+	for _, vs := range f.badVersions {
+		v, err := NewVersion(vs)
+		c.Check(err, Not(IsNil))
+		c.Check(v.String(), Equals, "0.0.0")
 	}
 }
 
