@@ -30,12 +30,7 @@ func init() {
 		panic(err)
 	}
 
-	nutBin = filepath.Join(wd, "..", "gonut")
-	if runtime.GOOS == "windows" {
-		// required for exec
-		os.Rename(nutBin, nutBin+".exe")
-		nutBin += ".exe"
-	}
+	nutBin = filepath.Join(wd, "..", "gonut.exe")
 }
 
 func setupTest(c *C) {

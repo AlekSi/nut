@@ -13,10 +13,11 @@ prepare:
 fvb:
 	gofmt -e -s -w .
 	$(GO) tool vet .
-	$(GO) build -o gonut github.com/AlekSi/nut/nut
+	$(GO) install github.com/AlekSi/nut
+	$(GO) build -o gonut.exe github.com/AlekSi/nut/nut
 
 test: fvb
-	cd ../test_nut1 && ../nut/gonut pack
+	cd ../test_nut1 && ../nut/gonut.exe pack
 	$(GO) test -v github.com/AlekSi/nut -gocheck.v
 	$(GO) test -v github.com/AlekSi/nut/nut -gocheck.v
 

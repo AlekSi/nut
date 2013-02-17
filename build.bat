@@ -1,3 +1,6 @@
+go install github.com/AlekSi/nut
+@if ERRORLEVEL 1 exit /B %ERRORLEVEL%
+
 go build -o gonut.exe github.com/AlekSi/nut/nut
 @if ERRORLEVEL 1 exit /B %ERRORLEVEL%
 
