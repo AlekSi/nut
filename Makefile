@@ -25,4 +25,4 @@ integration_test_short: test
 	$(GO) test -v -short github.com/AlekSi/nut/integration_test -gocheck.v
 
 integration_test: test
-	GONUTS_IO_SERVER=localhost:8080 $(GO) test -v github.com/AlekSi/nut/integration_test -gocheck.v
+	GONUTS_IO_SERVER=http://localhost:8080 $(GO) test -v github.com/AlekSi/nut/integration_test -gocheck.v

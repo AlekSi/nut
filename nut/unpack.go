@@ -30,7 +30,7 @@ Examples:
 
 func runUnpack(cmd *Command) {
 	if !unpackV {
-		unpackV = config.V
+		unpackV = Config.V
 	}
 
 	if len(cmd.Flag.Args()) != 1 {

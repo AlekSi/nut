@@ -8,6 +8,7 @@ import (
 	"go/build"
 	"io/ioutil"
 	"log"
+	"net/url"
 	"os"
 	"os/exec"
 	"os/user"
@@ -17,7 +18,7 @@ import (
 	. "github.com/AlekSi/nut"
 )
 
-type Config struct {
+type ConfigFile struct {
 	Token string
 	V     bool
 }
@@ -39,7 +40,7 @@ var (
 	//   - no GAE for second-level domains.
 	NutImportPrefixes = map[string]string{"gonuts.io": "www.gonuts.io"}
 
-	config Config
+	Config ConfigFile
 	vHelp  string = fmt.Sprintf("be verbose (may be read from ~/%s)", ConfigFileName)
 )
 
@@ -62,7 +63,7 @@ func init() {
 	NutDir = filepath.Join(WorkspaceDir, "nut")
 
 	u, err := user.Current()
-	if err != nil {
+	if err == nil {
 		_, err = os.Stat(u.HomeDir)
 	}
 	if err != nil {
@@ -73,15 +74,15 @@ func init() {
 	path := filepath.Join(u.HomeDir, ConfigFileName)
 	b, err := ioutil.ReadFile(path)
 	if err == nil {
-		err = json.Unmarshal(b, &config)
+		err = json.Unmarshal(b, &Config)
 	}
 	if err != nil && !os.IsNotExist(err) {
 		log.Printf("Warning: Can't load config from %s: %s\n", path, err)
-		config = Config{}
+		Config = ConfigFile{}
 	}
 
 	if !os.IsNotExist(err) {
-		b, err = json.MarshalIndent(config, "", "  ")
+		b, err = json.MarshalIndent(Config, "", "  ")
 		if err == nil {
 			err = ioutil.WriteFile(path, b, ConfigFilePerm)
 		}
@@ -92,7 +93,9 @@ func init() {
 
 	env := os.Getenv("GONUTS_IO_SERVER")
 	if env != "" {
-		NutImportPrefixes["gonuts.io"] = env
+		u, err := url.Parse(env)
+		PanicIfErr(err)
+		NutImportPrefixes["gonuts.io"] = u.Host
 	}
 }
 

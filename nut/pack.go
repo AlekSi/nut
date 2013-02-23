@@ -38,7 +38,7 @@ Examples:
 
 func runPack(cmd *Command) {
 	if !packV {
-		packV = config.V
+		packV = Config.V
 	}
 
 	if len(cmd.Flag.Args()) != 0 {

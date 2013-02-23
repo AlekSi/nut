@@ -109,7 +109,7 @@ func get(url *url.URL) (b []byte, err error) {
 
 func runGet(cmd *Command) {
 	if !getV {
-		getV = config.V
+		getV = Config.V
 	}
 
 	args := cmd.Flag.Args()

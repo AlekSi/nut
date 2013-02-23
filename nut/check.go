@@ -35,7 +35,7 @@ Examples:
 
 func runCheck(cmd *Command) {
 	if !checkV {
-		checkV = config.V
+		checkV = Config.V
 	}
 
 	args := cmd.Flag.Args()

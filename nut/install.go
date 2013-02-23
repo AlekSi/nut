@@ -41,7 +41,7 @@ Examples:
 
 func runInstall(cmd *Command) {
 	if !installV {
-		installV = config.V
+		installV = Config.V
 	}
 
 	for _, arg := range cmd.Flag.Args() {

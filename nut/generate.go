@@ -37,7 +37,7 @@ Examples:
 
 func runGenerate(cmd *Command) {
 	if !generateV {
-		generateV = config.V
+		generateV = Config.V
 	}
 
 	if len(cmd.Flag.Args()) != 0 {

@@ -36,10 +36,10 @@ Examples:
 
 func runPublish(cmd *Command) {
 	if publishToken == "" {
-		publishToken = config.Token
+		publishToken = Config.Token
 	}
 	if !publishV {
-		publishV = config.V
+		publishV = Config.V
 	}
 
 	url, err := url.Parse("http://" + NutImportPrefixes["gonuts.io"])
