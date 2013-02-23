@@ -51,6 +51,7 @@ func (c *Command) Usage() {
 var Commands = []*Command{cmdCheck, cmdGenerate, cmdGet, cmdInstall, cmdPack, cmdPublish, cmdUnpack}
 
 var usageTemplate = template.Must(template.New("top").Parse(`Nut is a tool for managing versioned Go source code packages.
+Version 0.3.dev.
 
 Usage:
 
@@ -68,7 +69,7 @@ Use "nut help [command]" for more information about a command.
 func help(args ...string) {
 	if len(args) == 0 {
 		flag.Usage()
-		os.Exit(0)
+		os.Exit(2)
 	}
 	if len(args) != 1 {
 		log.Print("usage: nut help [command]\n\nToo many arguments given.")
@@ -79,7 +80,7 @@ func help(args ...string) {
 	for _, cmd := range Commands {
 		if cmd.Name() == arg {
 			cmd.Usage()
-			os.Exit(0)
+			os.Exit(2)
 		}
 	}
 
@@ -106,7 +107,10 @@ func main() {
 
 	for _, cmd := range Commands {
 		if cmd.Name() == args[0] {
-			cmd.Flag.Usage = func() { cmd.Usage() }
+			cmd.Flag.Usage = func() {
+				cmd.Usage()
+				os.Exit(2)
+			}
 			cmd.Flag.Parse(args[1:])
 			cmd.Run(cmd)
 			os.Exit(0)
