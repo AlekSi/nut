@@ -1,12 +1,14 @@
 package integration_test
 
 import (
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
 	"strings"
 	"testing"
 
+	"github.com/AlekSi/nut/nut"
 	. "launchpad.net/gocheck"
 )
 
@@ -23,12 +25,15 @@ func (*R) SetUpTest(c *C) {
 	setupTest(c)
 
 	server := os.Getenv("GONUTS_IO_SERVER")
-	u, err := url.Parse("http://" + server + "/debug/prepare_test")
+	u, err := url.Parse(server + "/debug/prepare_test")
 	c.Assert(err, IsNil)
+	u.RawQuery = "token=" + main.Config.Token // importing package main... what a hack
 	res, err := http.Get(u.String())
 	c.Assert(err, IsNil)
+	body, err := ioutil.ReadAll(res.Body)
+	c.Assert(err, IsNil)
 	res.Body.Close()
-	c.Assert(res.StatusCode, Equals, 200)
+	c.Assert(res.StatusCode, Equals, 200, Commentf("%s", body))
 }
 
 func (r *R) TearDownTest(c *C) {
