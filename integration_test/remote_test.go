@@ -15,6 +15,11 @@ type R struct{}
 var _ = Suite(&R{})
 
 func (*R) SetUpTest(c *C) {
+	if testing.Short() {
+		c.Skip("-short passed")
+		return
+	}
+
 	setupTest(c)
 
 	server := os.Getenv("GONUTS_IO_SERVER")
@@ -31,11 +36,6 @@ func (r *R) TearDownTest(c *C) {
 }
 
 func (*R) TestPublishGet(c *C) {
-	if testing.Short() {
-		c.Skip("-short passed")
-		return
-	}
-
 	_, stderr := runNut(c, TestNut1, "pack -v")
 	c.Check(strings.HasSuffix(stderr, `test_nut1-0.0.1.nut created.`), Equals, true)
 	gitNoDiff(c, TestNut1)
