@@ -40,6 +40,10 @@ func runGenerate(cmd *Command) {
 		generateV = config.V
 	}
 
+	if len(cmd.Flag.Args()) != 0 {
+		log.Fatal("This command does not accept arguments.")
+	}
+
 	action := "updated"
 	var err error
 	var spec *Spec

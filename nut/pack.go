@@ -41,6 +41,10 @@ func runPack(cmd *Command) {
 		packV = config.V
 	}
 
+	if len(cmd.Flag.Args()) != 0 {
+		log.Fatal("This command does not accept arguments.")
+	}
+
 	/*
 		packages := build.ImportDir(".", 0)
 		if len(packages) > 1 {

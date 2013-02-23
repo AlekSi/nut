@@ -19,10 +19,10 @@ type Command struct {
 	// The first word in the line is taken to be the command name.
 	UsageLine string
 
-	// Short is the short description shown in the 'nut help' output.
+	// Short is the short description shown in the 'nut help' / ''nut -h' output.
 	Short string
 
-	// Long is the long message shown in the 'nut help <this-command>' output.
+	// Long is the long message shown in the 'nut help <this-command>' / 'nut <this-command> -h' output.
 	Long string
 
 	// Flag is a set of flags specific to this command.
