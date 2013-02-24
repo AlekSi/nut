@@ -64,7 +64,9 @@ func runPack(cmd *Command) {
 	}
 
 	var fileName string
-	spec := ReadSpec(SpecFileName)
+	spec := new(Spec)
+	err = spec.ReadFile(SpecFileName)
+	FatalIfErr(err)
 	nut := Nut{Spec: *spec, Package: *pack}
 	if packO == "" {
 		fileName = nut.FileName()

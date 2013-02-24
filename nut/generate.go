@@ -49,11 +49,12 @@ func runGenerate(cmd *Command) {
 	var spec *Spec
 
 	// read spec
+	spec = new(Spec)
 	if _, err = os.Stat(SpecFileName); os.IsNotExist(err) {
 		action = "generated"
-		spec = new(Spec)
 	} else {
-		spec = ReadSpec(SpecFileName)
+		err = spec.ReadFile(SpecFileName)
+		FatalIfErr(err)
 	}
 
 	// read package

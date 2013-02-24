@@ -62,6 +62,7 @@ func init() {
 	WorkspaceDir = filepath.Join(SrcDir, "..")
 	NutDir = filepath.Join(WorkspaceDir, "nut")
 
+	// detect home dir
 	u, err := user.Current()
 	if err == nil {
 		_, err = os.Stat(u.HomeDir)
@@ -71,6 +72,7 @@ func init() {
 		return
 	}
 
+	// load config if file exists
 	path := filepath.Join(u.HomeDir, ConfigFileName)
 	b, err := ioutil.ReadFile(path)
 	if err == nil {
@@ -81,6 +83,7 @@ func init() {
 		Config = ConfigFile{}
 	}
 
+	// write config if file exists
 	if !os.IsNotExist(err) {
 		b, err = json.MarshalIndent(Config, "", "  ")
 		if err == nil {
@@ -91,6 +94,7 @@ func init() {
 		}
 	}
 
+	// for development
 	env := os.Getenv("GONUTS_IO_SERVER")
 	if env != "" {
 		u, err := url.Parse(env)
@@ -111,18 +115,7 @@ func FatalIfErr(err error) {
 	}
 }
 
-// TODO common functions there are mess for now
-
-// Read spec file.
-func ReadSpec(fileName string) (spec *Spec) {
-	f, err := os.Open(fileName)
-	PanicIfErr(err)
-	defer f.Close()
-	spec = new(Spec)
-	_, err = spec.ReadFrom(f)
-	PanicIfErr(err)
-	return
-}
+// TODO common functions below are mess for now
 
 // Read nut file.
 func ReadNut(fileName string) (b []byte, nf *NutFile) {

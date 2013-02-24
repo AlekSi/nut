@@ -49,7 +49,9 @@ func runCheck(cmd *Command) {
 		parts := strings.Split(arg, ".")
 		switch parts[len(parts)-1] {
 		case "json":
-			spec := ReadSpec(arg)
+			spec := new(Spec)
+			err := spec.ReadFile(arg)
+			FatalIfErr(err)
 			pack, err := build.ImportDir(".", 0)
 			FatalIfErr(err)
 			errors = spec.Check()
