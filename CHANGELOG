@@ -6,6 +6,7 @@
   * `nut pack` now includes files for all OSes.
   + New API for Spec: ReadFile().
   + New API for Nut: ReadFrom(), FilePath(), ImportPath().
+  + New API for NutFile: ReadFile().
   * Fix bug with `nut get` and www.-prefixed hosts.
   * Fix some issues on Windows.
   * Fix -h and extra arguments handling.

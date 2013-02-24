@@ -72,6 +72,8 @@ func (nut *Nut) ImportPath(prefix string) string {
 
 // Read nut from directory: package from <dir> and spec from <dir>/<SpecFileName>.
 func (nut *Nut) ReadFrom(dir string) (err error) {
+	// This method is called ReadFrom to prevent code n.ReadFrom(r) from calling n.Spec.ReadFrom(r).
+
 	// read package
 	pack, err := build.ImportDir(dir, 0)
 	if err != nil {
@@ -98,8 +100,19 @@ type NutFile struct {
 // check interface
 var (
 	_ io.ReaderFrom = &NutFile{}
-	_ io.WriterTo   = &NutFile{}
 )
+
+// Reads nut from specified file.
+func (nf *NutFile) ReadFile(fileName string) (err error) {
+	f, err := os.Open(fileName)
+	if err != nil {
+		return
+	}
+	defer f.Close()
+
+	_, err = nf.ReadFrom(f)
+	return
+}
 
 // ReadFrom reads nut from r until EOF.
 // The return value n is the number of bytes read.

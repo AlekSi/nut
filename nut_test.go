@@ -31,7 +31,7 @@ func (f *N) SetUpTest(c *C) {
 	f.nf = nf
 }
 
-func (f *N) TestNutFile(c *C) {
+func (f *N) TestNutFileReadFrom(c *C) {
 	c.Check(f.nf.Spec.Version.String(), Equals, "0.0.1")
 	c.Check(f.nf.Version.String(), Equals, "0.0.1")
 	c.Check(f.nf.Vendor, Equals, "debug")
@@ -53,7 +53,14 @@ func (f *N) TestNutFile(c *C) {
 		DeepEquals, names)
 }
 
-func (f *N) TestNutDir(c *C) {
+func (f *N) TestNutFileReadFile(c *C) {
+	nf := new(NutFile)
+	err := nf.ReadFile("../test_nut1/test_nut1-0.0.1.nut")
+	c.Check(err, IsNil)
+	c.Check(nf, DeepEquals, f.nf)
+}
+
+func (f *N) TestNutReadFrom(c *C) {
 	pwd, err := os.Getwd()
 	c.Assert(err, IsNil)
 	c.Assert(os.Chdir("../test_nut1"), IsNil)
