@@ -69,7 +69,7 @@ func ArgToURL(s string) *url.URL {
 
 parse:
 	u, err := url.Parse(s)
-	PanicIfErr(err)
+	FatalIfErr(err)
 	return u
 }
 
@@ -118,7 +118,7 @@ func runGet(cmd *Command) {
 	// zero arguments is a special case – install dependencies for package in current directory
 	if len(args) == 0 {
 		pack, err := build.ImportDir(".", 0)
-		PanicIfErr(err)
+		FatalIfErr(err)
 		args = NutImports(pack.Imports)
 		if getV && len(args) != 0 {
 			log.Printf("%s depends on nuts: %s", pack.Name, strings.Join(args, ","))
@@ -160,7 +160,7 @@ func runGet(cmd *Command) {
 		if p == "" {
 			if strings.Contains(url.Host, ":") {
 				p, _, err = net.SplitHostPort(url.Host)
-				PanicIfErr(err)
+				FatalIfErr(err)
 			} else {
 				p = url.Host
 			}

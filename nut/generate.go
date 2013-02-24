@@ -76,17 +76,17 @@ func runGenerate(cmd *Command) {
 
 		for _, glob := range globs {
 			files, err := filepath.Glob(glob)
-			PanicIfErr(err)
+			FatalIfErr(err)
 			spec.ExtraFiles = append(spec.ExtraFiles, files...)
 		}
 	}
 
 	// write spec
 	f, err := os.OpenFile(SpecFileName, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, SpecFilePerm)
-	PanicIfErr(err)
+	FatalIfErr(err)
 	defer f.Close()
 	_, err = spec.WriteTo(f)
-	PanicIfErr(err)
+	FatalIfErr(err)
 
 	if generateV {
 		log.Printf("%s %s.", SpecFileName, action)

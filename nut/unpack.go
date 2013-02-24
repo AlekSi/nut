@@ -53,7 +53,7 @@ func runUnpack(cmd *Command) {
 
 	// unpack nut
 	dir, err := os.Getwd()
-	PanicIfErr(err)
+	FatalIfErr(err)
 	UnpackNut(fileName, dir, false, unpackV)
 	if unpackV {
 		log.Printf("%s unpacked.", fileName)

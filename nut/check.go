@@ -58,7 +58,9 @@ func runCheck(cmd *Command) {
 			errors = append(errors, CheckPackage(pack)...)
 
 		case "nut":
-			_, nf := ReadNut(arg)
+			nf := new(NutFile)
+			err := nf.ReadFile(arg)
+			FatalIfErr(err)
 			errors = nf.Check()
 
 		default:

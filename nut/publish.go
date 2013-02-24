@@ -43,7 +43,7 @@ func runPublish(cmd *Command) {
 	}
 
 	url, err := url.Parse("http://" + NutImportPrefixes["gonuts.io"])
-	PanicIfErr(err)
+	FatalIfErr(err)
 
 	url.RawQuery = "token=" + publishToken
 
@@ -55,17 +55,17 @@ func runPublish(cmd *Command) {
 			log.Printf("Putting %s to %s ...", arg, url)
 		}
 		req, err := http.NewRequest("PUT", url.String(), bytes.NewReader(b))
-		PanicIfErr(err)
+		FatalIfErr(err)
 		req.Header.Set("User-Agent", "nut publisher")
 		req.Header.Set("Content-Type", "application/zip")
 		req.ContentLength = int64(len(b))
 
 		res, err := http.DefaultClient.Do(req)
-		PanicIfErr(err)
-
+		FatalIfErr(err)
 		b, err = ioutil.ReadAll(res.Body)
-		PanicIfErr(err)
-		res.Body.Close()
+		FatalIfErr(err)
+		err = res.Body.Close()
+		FatalIfErr(err)
 
 		var body map[string]interface{}
 		err = json.Unmarshal(b, &body)

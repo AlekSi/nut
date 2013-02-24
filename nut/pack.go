@@ -57,7 +57,7 @@ func runPack(cmd *Command) {
 	ctxt := build.Default
 	ctxt.UseAllFiles = true
 	pack, err := ctxt.ImportDir(".", 0)
-	PanicIfErr(err)
+	FatalIfErr(err)
 
 	if pack.Name == "main" {
 		log.Fatal(`Binaries (package "main") are not supported yet.`)

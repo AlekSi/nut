@@ -1,4 +1,4 @@
-// Package main implements 'nut' command. Code there is not considered to be a public API, and may change without notice.
+// Package main implements 'nut' command (NOT A PUBLIC API).
 package main
 
 import (

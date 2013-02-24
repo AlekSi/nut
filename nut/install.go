@@ -68,8 +68,8 @@ func runInstall(cmd *Command) {
 		if installV {
 			log.Printf("Copying %s to %s ...", arg, dstFile)
 		}
-		PanicIfErr(os.MkdirAll(filepath.Dir(dstFile), WorkspaceDirPerm))
-		PanicIfErr(ioutil.WriteFile(dstFile, b, NutFilePerm))
+		FatalIfErr(os.MkdirAll(filepath.Dir(dstFile), WorkspaceDirPerm))
+		FatalIfErr(ioutil.WriteFile(dstFile, b, NutFilePerm))
 
 		srcPath := filepath.Join(SrcDir, nf.ImportPath(installP))
 		if installV {
