@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"go/build"
 	"io/ioutil"
@@ -131,7 +132,21 @@ func runGet(cmd *Command) {
 
 		url := ArgToURL(arg)
 		b, err := get(url)
-		PanicIfErr(err)
+		if err != nil {
+			log.Print(err)
+
+			var body map[string]interface{}
+			err = json.Unmarshal(b, &body)
+			if err != nil {
+				log.Print(err)
+			}
+			m, ok := body["Message"]
+			if ok {
+				log.Fatalf("%s", m)
+			} else {
+				log.Fatalf("Response: %#q", body)
+			}
+		}
 
 		nf := new(NutFile)
 		nf.ReadFrom(bytes.NewReader(b))
