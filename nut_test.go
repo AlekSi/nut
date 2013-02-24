@@ -1,9 +1,7 @@
 package nut_test
 
 import (
-	"bytes"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -14,7 +12,7 @@ import (
 
 type N struct {
 	f *os.File
-	b *bytes.Buffer
+	l int64
 }
 
 var _ = Suite(&N{})
@@ -24,18 +22,17 @@ func (f *N) SetUpTest(c *C) {
 	c.Assert(err, IsNil)
 	f.f = file
 
-	b, err := ioutil.ReadAll(f.f)
+	fi, err := f.f.Stat()
 	c.Assert(err, IsNil)
-	f.b = bytes.NewBuffer(b)
-
-	_, err = file.Seek(0, 0)
-	c.Assert(err, IsNil)
+	f.l = fi.Size()
 }
 
 func (f *N) TestNutFile(c *C) {
 	nf := new(NutFile)
-	_, err := nf.ReadFrom(f.f)
+
+	n, err := nf.ReadFrom(f.f)
 	c.Assert(err, IsNil)
+	c.Check(n, Equals, f.l)
 
 	c.Check(nf.Spec.Version.String(), Equals, "0.0.1")
 	c.Check(nf.Version.String(), Equals, "0.0.1")

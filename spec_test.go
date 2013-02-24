@@ -25,7 +25,7 @@ func (f *S) SetUpTest(c *C) {
 	c.Assert(err, IsNil)
 	f.b = bytes.NewBuffer(b)
 
-	_, err = file.Seek(0, 0)
+	_, err = f.f.Seek(0, 0)
 	c.Assert(err, IsNil)
 }
 
