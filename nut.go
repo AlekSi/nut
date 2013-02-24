@@ -95,6 +95,12 @@ type NutFile struct {
 	Reader *zip.Reader
 }
 
+// check interface
+var (
+	_ io.ReaderFrom = &NutFile{}
+	_ io.WriterTo   = &NutFile{}
+)
+
 // ReadFrom reads nut from r until EOF.
 // The return value n is the number of bytes read.
 // Any error except io.EOF encountered during the read is also returned.
