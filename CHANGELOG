@@ -4,6 +4,7 @@
   + `nut get` now downloads and installs all dependencies (recursive).
   + `nut get` now may be used without arguments.
   * `nut pack` now includes files for all OSes.
+  + New API for Spec: ReadFile().
   + New API for Nut: ReadFrom(), FilePath(), ImportPath().
   * Fix bug with `nut get` and www.-prefixed hosts.
   * Fix some issues on Windows.
