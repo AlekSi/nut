@@ -149,7 +149,8 @@ func runGet(cmd *Command) {
 		}
 
 		nf := new(NutFile)
-		nf.ReadFrom(bytes.NewReader(b))
+		_, err = nf.ReadFrom(bytes.NewReader(b))
+		FatalIfErr(err)
 		deps := NutImports(nf.Imports)
 		if getV && len(deps) != 0 {
 			log.Printf("%s depends on nuts: %s", nf.Name, strings.Join(deps, ","))

@@ -90,7 +90,7 @@ func help(args ...string) {
 
 func main() {
 	flag.Usage = func() {
-		usageTemplate.Execute(os.Stderr, Commands)
+		FatalIfErr(usageTemplate.Execute(os.Stderr, Commands))
 		flag.PrintDefaults()
 	}
 
@@ -111,7 +111,7 @@ func main() {
 				cmd.Usage()
 				os.Exit(2)
 			}
-			cmd.Flag.Parse(args[1:])
+			FatalIfErr(cmd.Flag.Parse(args[1:]))
 			cmd.Run(cmd)
 			os.Exit(0)
 		}

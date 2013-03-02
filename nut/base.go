@@ -241,13 +241,12 @@ func UnpackNut(fileName string, dir string, removeDir, verbose bool) {
 		if verbose {
 			log.Printf("Removing existing directory %s ...", dir)
 		}
-		os.RemoveAll(dir)
+		FatalIfErr(os.RemoveAll(dir))
 	}
 	FatalIfErr(os.MkdirAll(dir, WorkspaceDirPerm))
 
 	nf := new(NutFile)
-	err = nf.ReadFile(fileName)
-	FatalIfErr(err)
+	FatalIfErr(nf.ReadFile(fileName))
 
 	for _, file := range nf.Reader.File {
 		if verbose {
@@ -263,8 +262,8 @@ func UnpackNut(fileName string, dir string, removeDir, verbose bool) {
 		_, err = io.Copy(dst, src)
 		FatalIfErr(err)
 
-		src.Close()
-		dst.Close()
+		FatalIfErr(src.Close())
+		FatalIfErr(dst.Close())
 	}
 }
 
