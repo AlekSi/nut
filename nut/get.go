@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"net/url"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	. "github.com/AlekSi/nut"
@@ -44,7 +45,8 @@ Examples:
 	cmdGet.Flag.BoolVar(&getV, "v", false, vHelp)
 }
 
-func ArgToURL(s string) *url.URL {
+// Parse argument, return URL to get nut from and install prefix.
+func ParseArg(s string) (u *url.URL, prefix string) {
 	var p []string
 	var host string
 	var ok bool
@@ -56,7 +58,8 @@ func ArgToURL(s string) *url.URL {
 
 	p = strings.Split(s, "/")
 	if len(p) > 0 {
-		host, ok = NutImportPrefixes[p[0]]
+		prefix = p[0]
+		host, ok = NutImportPrefixes[prefix]
 	}
 	if ok {
 		// import path style
@@ -64,13 +67,26 @@ func ArgToURL(s string) *url.URL {
 		s = strings.Join(p, "/")
 	} else {
 		// short style
-		s = fmt.Sprintf("http://%s/%s", NutImportPrefixes["gonuts.io"], s)
+		prefix = "gonuts.io"
+		host = NutImportPrefixes[prefix]
+		s = fmt.Sprintf("http://%s/%s", host, s)
 	}
 
 parse:
 	u, err := url.Parse(s)
 	FatalIfErr(err)
-	return u
+	if prefix == "" {
+		prefix = u.Host
+		if strings.Contains(prefix, ":") {
+			prefix, _, err = net.SplitHostPort(prefix)
+			FatalIfErr(err)
+		}
+		if strings.HasPrefix(prefix, "www.") {
+			prefix = prefix[4:]
+		}
+	}
+
+	return
 }
 
 func get(url *url.URL) (b []byte, err error) {
@@ -130,7 +146,7 @@ func runGet(cmd *Command) {
 		arg := args[0]
 		args = args[1:]
 
-		url := ArgToURL(arg)
+		url, prefix := ParseArg(arg)
 		b, err := get(url)
 		if err != nil {
 			log.Print(err)
@@ -159,24 +175,20 @@ func runGet(cmd *Command) {
 
 		p := getP
 		if p == "" {
-			if strings.Contains(url.Host, ":") {
-				p, _, err = net.SplitHostPort(url.Host)
-				FatalIfErr(err)
-			} else {
-				p = url.Host
-			}
-			if strings.HasPrefix(p, "www.") {
-				p = p[4:]
-			}
+			p = prefix
 		}
 		fileName := WriteNut(b, p, getV)
-		path := filepath.Join(p, nf.Name, nf.Version.String())
-
+		path := nf.ImportPath(p)
 		UnpackNut(fileName, filepath.Join(SrcDir, path), true, getV)
 		installPaths[path] = true
 	}
 
+	paths := make([]string, 0, len(installPaths))
 	for path := range installPaths {
+		paths = append(paths, path)
+	}
+	sort.Strings(paths)
+	for _, path := range paths {
 		InstallPackage(path, getV)
 	}
 }

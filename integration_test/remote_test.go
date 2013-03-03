@@ -61,6 +61,6 @@ func (*R) TestPublishGet(c *C) {
 	c.Check(strings.HasSuffix(stderr, `Nut debug/test_nut2 version 0.0.2 published.`), Equals, true)
 	gitNoDiff(c, TestNut2)
 
-	// _, stderr = runNut(c, "", "get -v test_nut2/0.0.2")
-	// c.Check(strings.HasSuffix(stderr, `Nut "test_nut2" version "0.0.2" published.`), Equals, true)
+	_, stderr = runNut(c, "", "get -v debug/test_nut2/0.0.2")
+	c.Check(strings.HasSuffix(stderr, `gonuts.io/debug/test_nut2`), Equals, true)
 }
