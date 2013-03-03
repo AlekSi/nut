@@ -45,8 +45,6 @@ func runPublish(cmd *Command) {
 	url, err := url.Parse("http://" + NutImportPrefixes["gonuts.io"])
 	FatalIfErr(err)
 
-	url.RawQuery = "token=" + publishToken
-
 	for _, arg := range cmd.Flag.Args() {
 		b, nf := ReadNut(arg)
 		url.Path = fmt.Sprintf("/%s/%s/%s", nf.Vendor, nf.Name, nf.Version)
@@ -54,6 +52,7 @@ func runPublish(cmd *Command) {
 		if publishV {
 			log.Printf("Putting %s to %s ...", arg, url)
 		}
+		url.RawQuery = "token=" + publishToken
 		req, err := http.NewRequest("PUT", url.String(), bytes.NewReader(b))
 		FatalIfErr(err)
 		req.Header.Set("User-Agent", "nut publisher")
