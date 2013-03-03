@@ -21,16 +21,21 @@ var (
 	TestNut1 = "../../test_nut1"
 	TestNut2 = "../../test_nut2"
 	TestNut3 = "../../test_nut3"
+	Wd       string
 	nutBin   string
 )
 
 func init() {
-	wd, err := os.Getwd()
+	var err error
+	Wd, err = os.Getwd()
 	if err != nil {
 		panic(err)
 	}
 
-	nutBin = filepath.Join(wd, "..", "gonut.exe")
+	nutBin = filepath.Join(Wd, "..", "gonut.exe")
+	TestNut1 = filepath.Join(Wd, TestNut1)
+	TestNut2 = filepath.Join(Wd, TestNut2)
+	TestNut3 = filepath.Join(Wd, TestNut3)
 }
 
 func setupTest(c *C) {
@@ -41,12 +46,12 @@ func setupTest(c *C) {
 
 	oa := fmt.Sprintf("%s_%s", runtime.GOOS, runtime.GOARCH)
 	for _, dir := range []string{
-		"../../../../gonuts.io/",
-		"../../../../localhost/",
-		"../../../../../pkg/" + oa + "/gonuts.io/",
-		"../../../../../pkg/" + oa + "/localhost/",
-		"../../../../../bin/",
-		"../../../../../nut/",
+		filepath.Join(Wd, "../../../../gonuts.io/"),
+		filepath.Join(Wd, "../../../../localhost/"),
+		filepath.Join(Wd, "../../../../../pkg/"+oa+"/gonuts.io/"),
+		filepath.Join(Wd, "../../../../../pkg/"+oa+"/localhost/"),
+		filepath.Join(Wd, "../../../../../bin/"),
+		filepath.Join(Wd, "../../../../../nut/"),
 	} {
 		c.Logf("%s", dir)
 		c.Assert(os.RemoveAll(dir), IsNil)
@@ -60,7 +65,7 @@ func runCommand(c *C, dir, command string, args string, exitCode ...int) (stdout
 	case 1:
 		expectedCode = exitCode[0]
 	default:
-		c.Fatal("Invalid invacation of runCommand")
+		c.Fatal("Invalid invocation of runCommand")
 	}
 
 	o, e := bytes.Buffer{}, bytes.Buffer{}
