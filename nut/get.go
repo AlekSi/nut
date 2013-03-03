@@ -141,12 +141,19 @@ func runGet(cmd *Command) {
 		}
 	}
 
-	installPaths := make(map[string]bool, len(args))
+	urlsToPaths := make(map[string]string, len(args))
 	for len(args) != 0 {
 		arg := args[0]
 		args = args[1:]
 
 		url, prefix := ParseArg(arg)
+
+		// do not download twice
+		_, present := urlsToPaths[url.String()]
+		if present {
+			continue
+		}
+
 		b, err := get(url)
 		if err != nil {
 			log.Print(err)
@@ -169,7 +176,7 @@ func runGet(cmd *Command) {
 		FatalIfErr(err)
 		deps := NutImports(nf.Imports)
 		if getV && len(deps) != 0 {
-			log.Printf("%s depends on nuts: %s", nf.Name, strings.Join(deps, ","))
+			log.Printf("%s depends on nuts: %s", nf.Name, strings.Join(deps, ", "))
 		}
 		args = append(args, deps...)
 
@@ -180,11 +187,12 @@ func runGet(cmd *Command) {
 		fileName := WriteNut(b, p, getV)
 		path := nf.ImportPath(p)
 		UnpackNut(fileName, filepath.Join(SrcDir, path), true, getV)
-		installPaths[path] = true
+		urlsToPaths[url.String()] = path
 	}
 
-	paths := make([]string, 0, len(installPaths))
-	for path := range installPaths {
+	// install in lexical order (useful in integration tests)
+	paths := make([]string, 0, len(urlsToPaths))
+	for _, path := range urlsToPaths {
 		paths = append(paths, path)
 	}
 	sort.Strings(paths)
