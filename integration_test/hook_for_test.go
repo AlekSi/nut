@@ -53,7 +53,7 @@ func setupTest(c *C) {
 		filepath.Join(Wd, "../../../../../bin/"),
 		filepath.Join(Wd, "../../../../../nut/"),
 	} {
-		c.Logf("%s", dir)
+		// c.Logf("Removing %s", dir)
 		c.Assert(os.RemoveAll(dir), IsNil)
 	}
 }
@@ -75,8 +75,12 @@ func runCommand(c *C, dir, command string, args string, exitCode ...int) (stdout
 	err := cmd.Run()
 	stdout, stderr = strings.TrimSpace(o.String()), strings.TrimSpace(e.String())
 	c.Logf("%s: %s %s", dir, command, args)
-	c.Logf("stdout: %s", stdout)
-	c.Logf("stderr: %s", stderr)
+	if stdout != "" {
+		c.Logf("stdout: %s", stdout)
+	}
+	if stderr != "" {
+		c.Logf("stderr: %s", stderr)
+	}
 
 	if err == nil {
 		if expectedCode == 0 {
