@@ -1,6 +1,6 @@
 GO?=go
 
-all: integration_test_short
+all: short
 
 prepare:
 	$(GO) env
@@ -15,14 +15,17 @@ fvb:
 	$(GO) tool vet .
 	$(GO) install github.com/AlekSi/nut
 	$(GO) build -o gonut.exe github.com/AlekSi/nut/nut
+	-errcheck github.com/AlekSi/nut
+	-errcheck github.com/AlekSi/nut/nut
+	-errcheck github.com/AlekSi/nut/integration_test
 
 test: fvb
 	cd ../test_nut1 && ../nut/gonut.exe pack
 	$(GO) test -v github.com/AlekSi/nut -gocheck.v
 	$(GO) test -v github.com/AlekSi/nut/nut -gocheck.v
 
-integration_test_short: test
+short: test
 	$(GO) test -v -short github.com/AlekSi/nut/integration_test -gocheck.v
 
-integration_test: test
+full: test
 	GONUTS_IO_SERVER=http://localhost:8080 $(GO) test -v github.com/AlekSi/nut/integration_test -gocheck.v
