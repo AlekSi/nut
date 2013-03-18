@@ -1,7 +1,9 @@
 package main
 
 import (
+	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
 )
 
@@ -13,7 +15,7 @@ var (
 	cmdInstall = &Command{
 		Run:       runInstall,
 		UsageLine: "install [-nc] [-p prefix] [-v] [filenames]",
-		Short:     "unpack, compile and install nut",
+		Short:     "unpack nut and install package",
 	}
 
 	installNC bool
@@ -23,9 +25,14 @@ var (
 
 func init() {
 	cmdInstall.Long = `
-Copies nuts into GOPATH/nut/<prefix>, unpacks them into GOPATH/src/<prefix>/<name>/<version>
-and installs using 'go install'.
-	`
+Copies nuts into GOPATH/nut/<prefix>/<vendor>/<name>-<version>.nut,
+unpacks them into GOPATH/src/<prefix>/<vendor>/<name> and
+installs using 'go install'.
+
+Examples:
+    nut install test_nut1-0.0.1.nut
+    nut install -p gonuts.io test_nut1-0.0.1.nut
+`
 
 	cmdInstall.Flag.BoolVar(&installNC, "nc", false, "no check (not recommended)")
 	cmdInstall.Flag.StringVar(&installP, "p", "localhost", "install prefix in workspace")
@@ -34,11 +41,11 @@ and installs using 'go install'.
 
 func runInstall(cmd *Command) {
 	if !installV {
-		installV = config.V
+		installV = Config.V
 	}
 
 	for _, arg := range cmd.Flag.Args() {
-		_, nf := ReadNut(arg)
+		b, nf := ReadNut(arg)
 
 		if nf.Name == "main" {
 			log.Fatal(`Binaries (package "main") are not supported yet.`)
@@ -52,13 +59,24 @@ func runInstall(cmd *Command) {
 				for _, e := range errors {
 					log.Printf("    %s", e)
 				}
-				log.Fatalf("Please contact nut author.")
+				log.Fatal("Please contact nut author.")
 			}
 		}
 
-		CopyNut(arg, installP, installV)
-		path := filepath.Join(installP, nf.Name, nf.Version.String())
-		UnpackNut(arg, filepath.Join(SrcDir, path), true, installV)
-		InstallPackage(path, installV)
+		// copy nut
+		dstFile := filepath.Join(NutDir, nf.FilePath(installP))
+		if installV {
+			log.Printf("Copying %s to %s ...", arg, dstFile)
+		}
+		FatalIfErr(os.MkdirAll(filepath.Dir(dstFile), WorkspaceDirPerm))
+		FatalIfErr(ioutil.WriteFile(dstFile, b, NutFilePerm))
+
+		srcPath := filepath.Join(SrcDir, nf.ImportPath(installP))
+		if installV {
+			log.Printf("Unpacking into %s ...", srcPath)
+		}
+		UnpackNut(dstFile, srcPath, true, installV)
+
+		InstallPackage(nf.ImportPath(installP), installV)
 	}
 }

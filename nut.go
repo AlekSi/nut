@@ -8,6 +8,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"regexp"
 	"sort"
 	"strings"
@@ -21,6 +22,9 @@ func CheckPackage(pack *build.Package) (errors []string) {
 	}
 	if strings.HasPrefix(pack.Name, "_") {
 		errors = append(errors, `Package name should not starts with "_".`)
+	}
+	if strings.HasSuffix(pack.Name, "_") {
+		errors = append(errors, `Package name should not ends with "_".`)
 	}
 	if strings.HasSuffix(pack.Name, "_test") {
 		errors = append(errors, `Package name should not ends with "_test".`)
@@ -36,6 +40,8 @@ func CheckPackage(pack *build.Package) (errors []string) {
 }
 
 // Describes nut – a Go package with associated meta-information.
+// It embeds Spec and build.Package to provide easy access to properties:
+// Nut.Name instead of Nut.Package.Name, Nut.Version instead of Nut.Spec.Version.
 type Nut struct {
 	Spec
 	build.Package
@@ -53,16 +59,59 @@ func (nut *Nut) FileName() string {
 	return fmt.Sprintf("%s-%s.nut", nut.Name, nut.Version)
 }
 
-// Code "Nut.ReadFrom()" will call Nut.Spec.ReadFrom(), while programmer likely wanted to call NutFile.ReadFrom().
-// This method (with weird incompatible signature) is defined to prevent this typical error.
-func (nut *Nut) ReadFrom(Do, Not, Call bool) (do, not, call bool) {
-	panic("Nut.ReadFrom() called: call Nut.Spec.ReadFrom() or NutFile.ReadFrom()")
+// Returns canonical filepath in format <prefix>/<vendor>/<name>-<version>.nut
+// (with "\" instead of "/" on Windows).
+func (nut *Nut) FilePath(prefix string) string {
+	return filepath.Join(prefix, nut.Vendor, nut.FileName())
+}
+
+// Returns canonical import path in format <prefix>/<vendor>/<name>
+func (nut *Nut) ImportPath(prefix string) string {
+	return fmt.Sprintf("%s/%s/%s", prefix, nut.Vendor, nut.Name)
+}
+
+// Read nut from directory: package from <dir> and spec from <dir>/<SpecFileName>.
+func (nut *Nut) ReadFrom(dir string) (err error) {
+	// This method is called ReadFrom to prevent code n.ReadFrom(r) from calling n.Spec.ReadFrom(r).
+
+	// read package
+	pack, err := build.ImportDir(dir, 0)
+	if err != nil {
+		return
+	}
+	nut.Package = *pack
+
+	// read spec
+	f, err := os.Open(filepath.Join(dir, SpecFileName))
+	if err != nil {
+		return
+	}
+	defer f.Close()
+	_, err = nut.Spec.ReadFrom(f)
+	return
 }
 
 // Describes .nut file (a ZIP archive).
 type NutFile struct {
 	Nut
 	Reader *zip.Reader
+}
+
+// check interface
+var (
+	_ io.ReaderFrom = &NutFile{}
+)
+
+// Reads nut from specified file.
+func (nf *NutFile) ReadFile(fileName string) (err error) {
+	f, err := os.Open(fileName)
+	if err != nil {
+		return
+	}
+	defer f.Close()
+
+	_, err = nf.ReadFrom(f)
+	return
 }
 
 // ReadFrom reads nut from r until EOF.
@@ -112,6 +161,9 @@ func (nf *NutFile) ReadFrom(r io.Reader) (n int64, err error) {
 
 	// read package
 	pack, err := nf.context().ImportDir(".", 0)
+	if err != nil {
+		return
+	}
 	nf.Package = *pack
 	return
 }

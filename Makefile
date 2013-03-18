@@ -1,27 +1,31 @@
-all: test
+GO?=go
+
+all: short
 
 prepare:
-	go get -u launchpad.net/gocheck
-	go get -u github.com/AlekSi/test_nut1
+	$(GO) env
+	$(GO) get -u launchpad.net/gocheck
+	$(GO) get -u github.com/AlekSi/test_nut1
+	-$(GO) get -u github.com/AlekSi/test_nut2
+	-$(GO) get -u github.com/AlekSi/test_nut3
 
 # format, vet, build
 fvb:
 	gofmt -e -s -w .
-	go tool vet .
-	go build -v -o gonut ./nut
+	$(GO) tool vet .
+	$(GO) install github.com/AlekSi/nut
+	$(GO) build -o gonut.exe github.com/AlekSi/nut/nut
+	-errcheck github.com/AlekSi/nut
+	-errcheck github.com/AlekSi/nut/nut
+	-errcheck github.com/AlekSi/nut/integration_test
 
 test: fvb
-	cd ../test_nut1 && rm -f *.nut
-	cd ../test_nut1 && ../nut/gonut generate -v
-	cd ../test_nut1 && ../nut/gonut check -v
-	cd ../test_nut1 && ../nut/gonut pack -v
-	cd ../test_nut1 && ../nut/gonut check -v test_nut1-0.0.1.nut
-	cd ../test_nut1 && ../nut/gonut unpack -v test_nut1-0.0.1.nut
+	cd ../test_nut1 && ../nut/gonut.exe pack
+	$(GO) test -v github.com/AlekSi/nut -gocheck.v
+	$(GO) test -v github.com/AlekSi/nut/nut -gocheck.v
 
-	go test -v ./...
+short: test
+	$(GO) test -v -short github.com/AlekSi/nut/integration_test -gocheck.v
 
-	cd ../test_nut1 && ../nut/gonut install -v test_nut1-0.0.1.nut
-
-test_server: test
-	cd ../test_nut1 && GONUTS_SERVER=localhost:8080 ../nut/gonut publish -v test_nut1-0.0.1.nut
-	cd ../test_nut1 && GONUTS_SERVER=localhost:8080 ../nut/gonut get -v test_nut1/0.0.1
+full: test
+	GONUTS_IO_SERVER=http://localhost:8080 $(GO) test -v github.com/AlekSi/nut/integration_test -gocheck.v

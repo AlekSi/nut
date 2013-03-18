@@ -18,7 +18,7 @@ var (
 	cmdGenerate = &Command{
 		Run:       runGenerate,
 		UsageLine: "generate [-v]",
-		Short:     "generate or update spec in current directory",
+		Short:     "generate or update spec for package in current directory",
 	}
 
 	generateV bool
@@ -26,33 +26,40 @@ var (
 
 func init() {
 	cmdGenerate.Long = `
-Generates or updates spec nut.json in for package in current directory.
-	`
+Generates or updates spec nut.json for package in current directory.
+
+Examples:
+    nut generate
+`
 
 	cmdGenerate.Flag.BoolVar(&generateV, "v", false, vHelp)
 }
 
 func runGenerate(cmd *Command) {
 	if !generateV {
-		generateV = config.V
+		generateV = Config.V
+	}
+
+	if len(cmd.Flag.Args()) != 0 {
+		log.Fatal("This command does not accept arguments.")
 	}
 
 	action := "updated"
 	var err error
 	var spec *Spec
-	var pack *build.Package
 
 	// read spec
+	spec = new(Spec)
 	if _, err = os.Stat(SpecFileName); os.IsNotExist(err) {
 		action = "generated"
-		spec = new(Spec)
 	} else {
-		spec = ReadSpec(SpecFileName)
+		err = spec.ReadFile(SpecFileName)
+		FatalIfErr(err)
 	}
 
 	// read package
-	pack, err = build.ImportDir(".", 0)
-	PanicIfErr(err)
+	pack, err := build.ImportDir(".", 0)
+	FatalIfErr(err)
 
 	// add example author
 	if len(spec.Authors) == 0 {
@@ -69,17 +76,17 @@ func runGenerate(cmd *Command) {
 
 		for _, glob := range globs {
 			files, err := filepath.Glob(glob)
-			PanicIfErr(err)
+			FatalIfErr(err)
 			spec.ExtraFiles = append(spec.ExtraFiles, files...)
 		}
 	}
 
 	// write spec
 	f, err := os.OpenFile(SpecFileName, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, SpecFilePerm)
-	PanicIfErr(err)
+	FatalIfErr(err)
 	defer f.Close()
 	_, err = spec.WriteTo(f)
-	PanicIfErr(err)
+	FatalIfErr(err)
 
 	if generateV {
 		log.Printf("%s %s.", SpecFileName, action)
@@ -89,7 +96,7 @@ func runGenerate(cmd *Command) {
 	errors := spec.Check()
 	errors = append(errors, CheckPackage(pack)...)
 	if len(errors) != 0 {
-		log.Print("\nYou should fix following issues:")
+		log.Print("\nNow you should edit nut.json to fix following errors:")
 		for _, e := range errors {
 			log.Printf("    %s", e)
 		}

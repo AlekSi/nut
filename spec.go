@@ -6,15 +6,18 @@ import (
 	"io"
 	"io/ioutil"
 	"net/url"
+	"os"
+	"regexp"
 	"strings"
 )
 
 // Describes part of nut meta-information, stored in file nut.json.
 type Spec struct {
 	Version    Version
+	Vendor     string
 	Authors    []Person
-	ExtraFiles []string `json:",omitempty"`
-	Homepage   string   `json:",omitempty"`
+	ExtraFiles []string
+	Homepage   string
 }
 
 // Describes nut author.
@@ -28,6 +31,26 @@ const (
 	ExampleEmail    = "crazy.nutter@gonuts.io"
 	SpecFileName    = "nut.json"
 )
+
+var VendorRegexp = regexp.MustCompile(`^[0-9a-z][0-9a-z_-]*$`)
+
+// check interface
+var (
+	_ io.ReaderFrom = &Spec{}
+	_ io.WriterTo   = &Spec{}
+)
+
+// Reads spec from specified file.
+func (spec *Spec) ReadFile(fileName string) (err error) {
+	f, err := os.Open(fileName)
+	if err != nil {
+		return
+	}
+	defer f.Close()
+
+	_, err = spec.ReadFrom(f)
+	return
+}
 
 // ReadFrom reads spec from r until EOF.
 // The return value n is the number of bytes read.
@@ -62,11 +85,16 @@ func (spec *Spec) WriteTo(w io.Writer) (n int64, err error) {
 	return
 }
 
-// Check spec for errors and return them.
+// Checks spec for errors and return them.
 func (spec *Spec) Check() (errors []string) {
 	// check version
 	if spec.Version.String() == "0.0.0" {
 		errors = append(errors, fmt.Sprintf("Version %q is invalid.", spec.Version))
+	}
+
+	// check vendor
+	if !VendorRegexp.MatchString(spec.Vendor) {
+		errors = append(errors, fmt.Sprintf(`Vendor should contain only lower word characters (match "%s").`, VendorRegexp))
 	}
 
 	// author should be specified

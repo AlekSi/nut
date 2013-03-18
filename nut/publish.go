@@ -23,45 +23,48 @@ var (
 
 func init() {
 	cmdPublish.Long = `
-Publish nut on http://gonuts.io/ (requires registration with Google account).
-	`
+Publishes nut on http://gonuts.io/ (requires registration with Google account).
 
-	tokenHelp := fmt.Sprintf("access token (see http://gonuts.io/-/me), may be read from ~/%s", ConfigFileName)
+Examples:
+    nut publish test_nut1-0.0.1.nut
+`
+
+	tokenHelp := fmt.Sprintf("access token from http://gonuts.io/-/me (may be read from ~/%s)", ConfigFileName)
 	cmdPublish.Flag.StringVar(&publishToken, "token", "", tokenHelp)
 	cmdPublish.Flag.BoolVar(&publishV, "v", false, vHelp)
 }
 
 func runPublish(cmd *Command) {
 	if publishToken == "" {
-		publishToken = config.Token
+		publishToken = Config.Token
 	}
 	if !publishV {
-		publishV = config.V
+		publishV = Config.V
 	}
 
-	url, err := url.Parse("http://" + gonutsServer)
-	PanicIfErr(err)
-
-	url.RawQuery = "token=" + publishToken
+	url, err := url.Parse("http://" + NutImportPrefixes["gonuts.io"])
+	FatalIfErr(err)
 
 	for _, arg := range cmd.Flag.Args() {
 		b, nf := ReadNut(arg)
-		url.Path = fmt.Sprintf("/%s/%s", nf.Name, nf.Version)
+		url.Path = fmt.Sprintf("/%s/%s/%s", nf.Vendor, nf.Name, nf.Version)
 
 		if publishV {
 			log.Printf("Putting %s to %s ...", arg, url)
 		}
+		url.RawQuery = "token=" + publishToken
 		req, err := http.NewRequest("PUT", url.String(), bytes.NewReader(b))
-		PanicIfErr(err)
+		FatalIfErr(err)
+		req.Header.Set("User-Agent", "nut publisher")
 		req.Header.Set("Content-Type", "application/zip")
-		req.ContentLength = int64(len(b)) // set Content-Length explicitly: dev_appserver.py doesn't support chunked encoding
+		req.ContentLength = int64(len(b))
 
 		res, err := http.DefaultClient.Do(req)
-		PanicIfErr(err)
-
+		FatalIfErr(err)
 		b, err = ioutil.ReadAll(res.Body)
-		PanicIfErr(err)
-		res.Body.Close()
+		FatalIfErr(err)
+		err = res.Body.Close()
+		FatalIfErr(err)
 
 		var body map[string]interface{}
 		err = json.Unmarshal(b, &body)

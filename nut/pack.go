@@ -26,7 +26,10 @@ var (
 func init() {
 	cmdPack.Long = `
 Packs package in current directory into nut.
-	`
+
+Examples:
+    nut pack
+`
 
 	cmdPack.Flag.BoolVar(&packNC, "nc", false, "no check (not recommended)")
 	cmdPack.Flag.StringVar(&packO, "o", "", "output filename")
@@ -35,7 +38,11 @@ Packs package in current directory into nut.
 
 func runPack(cmd *Command) {
 	if !packV {
-		packV = config.V
+		packV = Config.V
+	}
+
+	if len(cmd.Flag.Args()) != 0 {
+		log.Fatal("This command does not accept arguments.")
 	}
 
 	/*
@@ -47,15 +54,19 @@ func runPack(cmd *Command) {
 		}
 	*/
 
-	pack, err := build.ImportDir(".", 0)
-	PanicIfErr(err)
+	ctxt := build.Default
+	ctxt.UseAllFiles = true
+	pack, err := ctxt.ImportDir(".", 0)
+	FatalIfErr(err)
 
 	if pack.Name == "main" {
 		log.Fatal(`Binaries (package "main") are not supported yet.`)
 	}
 
 	var fileName string
-	spec := ReadSpec(SpecFileName)
+	spec := new(Spec)
+	err = spec.ReadFile(SpecFileName)
+	FatalIfErr(err)
 	nut := Nut{Spec: *spec, Package: *pack}
 	if packO == "" {
 		fileName = nut.FileName()
@@ -70,7 +81,7 @@ func runPack(cmd *Command) {
 			for _, e := range errors {
 				log.Printf("    %s", e)
 			}
-			log.Fatalf("Hint: use 'nut check'.")
+			log.Fatal("Hint: use 'nut check'.")
 		}
 	}
 
