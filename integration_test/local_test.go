@@ -36,7 +36,7 @@ nut.json generated.
 
 Now you should edit nut.json to fix following errors:
     Version "0.0.0" is invalid.
-    Vendor should contain only word characters (match "^[0-9A-Za-z_]+$").
+    Vendor should contain only lower word characters (match "^[0-9a-z][0-9a-z_-]*$").
     "Crazy Nutter" is not a real person.
 
 After that run 'nut check' to check spec again.`[1:]
@@ -48,7 +48,7 @@ After that run 'nut check' to check spec again.`[1:]
 	expected = `
 Found errors in nut.json:
     Version "0.0.0" is invalid.
-    Vendor should contain only word characters (match "^[0-9A-Za-z_]+$").
+    Vendor should contain only lower word characters (match "^[0-9a-z][0-9a-z_-]*$").
     "Crazy Nutter" is not a real person.`[1:]
 	c.Check(stderr, Equals, expected)
 

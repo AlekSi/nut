@@ -32,7 +32,7 @@ const (
 	SpecFileName    = "nut.json"
 )
 
-var VendorRegexp = regexp.MustCompile(`^[0-9A-Za-z_]+$`)
+var VendorRegexp = regexp.MustCompile(`^[0-9a-z][0-9a-z_-]*$`)
 
 // check interface
 var (
@@ -94,7 +94,7 @@ func (spec *Spec) Check() (errors []string) {
 
 	// check vendor
 	if !VendorRegexp.MatchString(spec.Vendor) {
-		errors = append(errors, fmt.Sprintf(`Vendor should contain only word characters (match "%s").`, VendorRegexp))
+		errors = append(errors, fmt.Sprintf(`Vendor should contain only lower word characters (match "%s").`, VendorRegexp))
 	}
 
 	// author should be specified

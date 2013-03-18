@@ -33,12 +33,12 @@ func init() {
 Downloads and installs nut and dependencies from http://gonuts.io/ or specified URL.
 
 Examples:
-    nut install AlekSi/nut
-    nut install AlekSi/nut/0.2.0
-    nut install gonuts.io/AlekSi/nut
-    nut install gonuts.io/AlekSi/nut/0.2.0
-    nut install http://gonuts.io/AlekSi/nut
-    nut install http://gonuts.io/AlekSi/nut/0.2.0
+    nut install aleksi/nut
+    nut install aleksi/nut/0.2.0
+    nut install gonuts.io/aleksi/nut
+    nut install gonuts.io/aleksi/nut/0.2.0
+    nut install http://gonuts.io/aleksi/nut
+    nut install http://gonuts.io/aleksi/nut/0.2.0
 `
 
 	cmdGet.Flag.StringVar(&getP, "p", "", "install prefix in workspace, uses hostname from URL if omitted")

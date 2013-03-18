@@ -55,3 +55,16 @@ func (f *S) TestReadFile(c *C) {
 	c.Check(err, IsNil)
 	c.Check(s, DeepEquals, f.s)
 }
+
+func (f *S) TestVendorFormat(c *C) {
+	c.Check(VendorRegexp.MatchString("aleksi"), Equals, true)
+	c.Check(VendorRegexp.MatchString("42"), Equals, true)
+	c.Check(VendorRegexp.MatchString("weird-"), Equals, true)
+	c.Check(VendorRegexp.MatchString("weird_"), Equals, true)
+
+	c.Check(VendorRegexp.MatchString("AlekSi"), Equals, false) // :(
+	c.Check(VendorRegexp.MatchString("-weird"), Equals, false)
+	c.Check(VendorRegexp.MatchString("-"), Equals, false)
+	c.Check(VendorRegexp.MatchString("_weird"), Equals, false)
+	c.Check(VendorRegexp.MatchString("_"), Equals, false)
+}

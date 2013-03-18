@@ -25,19 +25,19 @@ func (g *G) TearDownSuite(*C) {
 func (*G) TestParseArg(c *C) {
 	data := [][3]string{
 		// short style
-		{"AlekSi/test_nut1", "http://server/AlekSi/test_nut1", "gonuts.io"},
-		{"AlekSi/test_nut1/0.0.1", "http://server/AlekSi/test_nut1/0.0.1", "gonuts.io"},
+		{"aleksi/test_nut1", "http://server/aleksi/test_nut1", "gonuts.io"},
+		{"aleksi/test_nut1/0.0.1", "http://server/aleksi/test_nut1/0.0.1", "gonuts.io"},
 
 		// import path style
-		{"gonuts.io/AlekSi/test_nut1", "http://server/AlekSi/test_nut1", "gonuts.io"},
-		{"gonuts.io/AlekSi/test_nut1/0.0.1", "http://server/AlekSi/test_nut1/0.0.1", "gonuts.io"},
-		{"express42.com/nuts/AlekSi/test_nut1", "http://express42.com/nuts/AlekSi/test_nut1", "express42.com"},
-		{"express42.com/nuts/AlekSi/test_nut1/0.0.1", "http://express42.com/nuts/AlekSi/test_nut1/0.0.1", "express42.com"},
+		{"gonuts.io/aleksi/test_nut1", "http://server/aleksi/test_nut1", "gonuts.io"},
+		{"gonuts.io/aleksi/test_nut1/0.0.1", "http://server/aleksi/test_nut1/0.0.1", "gonuts.io"},
+		{"express42.com/nuts/aleksi/test_nut1", "http://express42.com/nuts/aleksi/test_nut1", "express42.com"},
+		{"express42.com/nuts/aleksi/test_nut1/0.0.1", "http://express42.com/nuts/aleksi/test_nut1/0.0.1", "express42.com"},
 
 		// full URL - as is
-		{"http://www.gonuts.io/AlekSi/test_nut1", "http://www.gonuts.io/AlekSi/test_nut1", "gonuts.io"},
-		{"http://www.gonuts.io/AlekSi/test_nut1/0.0.1", "http://www.gonuts.io/AlekSi/test_nut1/0.0.1", "gonuts.io"},
-		{"http://localhost:8080/AlekSi/test_nut1-0.0.1.nut", "http://localhost:8080/AlekSi/test_nut1-0.0.1.nut", "localhost"},
+		{"http://www.gonuts.io/aleksi/test_nut1", "http://www.gonuts.io/aleksi/test_nut1", "gonuts.io"},
+		{"http://www.gonuts.io/aleksi/test_nut1/0.0.1", "http://www.gonuts.io/aleksi/test_nut1/0.0.1", "gonuts.io"},
+		{"http://localhost:8080/aleksi/test_nut1-0.0.1.nut", "http://localhost:8080/aleksi/test_nut1-0.0.1.nut", "localhost"},
 		{"http://example.com/nuts/test_nut1-0.0.1.nut", "http://example.com/nuts/test_nut1-0.0.1.nut", "example.com"},
 		{"https://example.com/nuts/test_nut1-0.0.1.nut", "https://example.com/nuts/test_nut1-0.0.1.nut", "example.com"},
 	}
@@ -50,6 +50,6 @@ func (*G) TestParseArg(c *C) {
 }
 
 func (*G) TestNutImports(c *C) {
-	actual := NutImports([]string{"fmt", "log/syslog", "github.com/AlekSi/nut", "gonuts.io/AlekSi/test_nut1"})
-	c.Check(actual, DeepEquals, []string{"gonuts.io/AlekSi/test_nut1"})
+	actual := NutImports([]string{"fmt", "log/syslog", "github.com/aleksi/nut", "gonuts.io/aleksi/test_nut1"})
+	c.Check(actual, DeepEquals, []string{"gonuts.io/aleksi/test_nut1"})
 }
