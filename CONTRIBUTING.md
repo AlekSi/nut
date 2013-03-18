@@ -13,15 +13,16 @@ The following sections describes those scenarios. Golden rule: communicate first
 Reporting bugs
 --------------
 
-1. Make sure bug is reproducible with latest released version: `go get -u github.com/AlekSi/nut/...`.
-2. Search for [existing bug report](https://github.com/AlekSi/nut/issues).
-3. Create a new issue if needed. Please do not assign any label.
-4. Include output of:
+1. Enable debug output: set "Debug" to "true" in `~/.nut.json`.
+2. Make sure bug is reproducible with latest released version: `go get -u github.com/AlekSi/nut/...`.
+3. Search for [existing bug report](https://github.com/AlekSi/nut/issues).
+4. Create a new issue if needed. Please do not assign any label.
+5. Include output of:
 
 		(cd $GOPATH/src/github.com/AlekSi/nut && git describe --tags)
 		go env
 
-5. Include any other information you think may help.
+6. Include any other information you think may help.
 
 Proposing features
 ------------------
