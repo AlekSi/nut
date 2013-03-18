@@ -23,14 +23,19 @@ func init() {
 	cmdCheck.Long = `
 Checks given spec (.json) or nut (.nut) files.
 If no filenames are given, checks spec nut.json in current directory.
-	`
+
+Examples:
+    nut check
+    nut check test_nut1/nut.json
+    nut check test_nut1/test_nut1-0.0.1.nut
+`
 
 	cmdCheck.Flag.BoolVar(&checkV, "v", false, vHelp)
 }
 
 func runCheck(cmd *Command) {
 	if !checkV {
-		checkV = config.V
+		checkV = Config.V
 	}
 
 	args := cmd.Flag.Args()
@@ -44,14 +49,18 @@ func runCheck(cmd *Command) {
 		parts := strings.Split(arg, ".")
 		switch parts[len(parts)-1] {
 		case "json":
-			spec := ReadSpec(arg)
+			spec := new(Spec)
+			err := spec.ReadFile(arg)
+			FatalIfErr(err)
 			pack, err := build.ImportDir(".", 0)
 			FatalIfErr(err)
 			errors = spec.Check()
 			errors = append(errors, CheckPackage(pack)...)
 
 		case "nut":
-			_, nf := ReadNut(arg)
+			nf := new(NutFile)
+			err := nf.ReadFile(arg)
+			FatalIfErr(err)
 			errors = nf.Check()
 
 		default:

@@ -6,8 +6,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"go/build"
+	"io"
 	"io/ioutil"
 	"log"
+	"net/url"
 	"os"
 	"os/exec"
 	"os/user"
@@ -17,9 +19,10 @@ import (
 	. "github.com/AlekSi/nut"
 )
 
-type Config struct {
+type ConfigFile struct {
 	Token string
 	V     bool
+	Debug bool
 }
 
 const (
@@ -39,8 +42,8 @@ var (
 	//   - no GAE for second-level domains.
 	NutImportPrefixes = map[string]string{"gonuts.io": "www.gonuts.io"}
 
-	config Config
-	vHelp  string = fmt.Sprintf("be verbose, may be read from ~/%s", ConfigFileName)
+	Config ConfigFile
+	vHelp  string = fmt.Sprintf("be verbose (may be read from ~/%s)", ConfigFileName)
 )
 
 func init() {
@@ -61,8 +64,9 @@ func init() {
 	WorkspaceDir = filepath.Join(SrcDir, "..")
 	NutDir = filepath.Join(WorkspaceDir, "nut")
 
+	// detect home dir
 	u, err := user.Current()
-	if err != nil {
+	if err == nil {
 		_, err = os.Stat(u.HomeDir)
 	}
 	if err != nil {
@@ -70,18 +74,20 @@ func init() {
 		return
 	}
 
+	// load config if file exists
 	path := filepath.Join(u.HomeDir, ConfigFileName)
 	b, err := ioutil.ReadFile(path)
 	if err == nil {
-		err = json.Unmarshal(b, &config)
+		err = json.Unmarshal(b, &Config)
 	}
 	if err != nil && !os.IsNotExist(err) {
 		log.Printf("Warning: Can't load config from %s: %s\n", path, err)
-		config = Config{}
+		Config = ConfigFile{}
 	}
 
+	// write config if file exists
 	if !os.IsNotExist(err) {
-		b, err = json.MarshalIndent(config, "", "  ")
+		b, err = json.MarshalIndent(Config, "", "  ")
 		if err == nil {
 			err = ioutil.WriteFile(path, b, ConfigFilePerm)
 		}
@@ -90,171 +96,28 @@ func init() {
 		}
 	}
 
+	// set logger flags
+	if Config.Debug {
+		log.SetFlags(log.Ldate | log.Lmicroseconds | log.Llongfile)
+	}
+
+	// for development
 	env := os.Getenv("GONUTS_IO_SERVER")
 	if env != "" {
-		NutImportPrefixes["gonuts.io"] = env
-	}
-}
-
-func PanicIfErr(err error) {
-	if err != nil {
-		log.Panic(err)
+		u, err := url.Parse(env)
+		FatalIfErr(err)
+		NutImportPrefixes["gonuts.io"] = u.Host
 	}
 }
 
 func FatalIfErr(err error) {
 	if err != nil {
-		log.Fatal(err)
-	}
-}
-
-// TODO common functions there are mess for now
-
-// Read spec file.
-func ReadSpec(fileName string) (spec *Spec) {
-	f, err := os.Open(fileName)
-	PanicIfErr(err)
-	defer f.Close()
-	spec = new(Spec)
-	_, err = spec.ReadFrom(f)
-	PanicIfErr(err)
-	return
-}
-
-// Read nut file.
-func ReadNut(fileName string) (b []byte, nf *NutFile) {
-	var err error
-	b, err = ioutil.ReadFile(fileName)
-	FatalIfErr(err)
-	nf = new(NutFile)
-	_, err = nf.ReadFrom(bytes.NewReader(b))
-	PanicIfErr(err)
-	return
-}
-
-// Write nut to GOPATH/nut/<prefix>/<name>-<version>.nut
-func WriteNut(b []byte, prefix string, verbose bool) string {
-	nf := new(NutFile)
-	_, err := nf.ReadFrom(bytes.NewReader(b))
-	PanicIfErr(err)
-
-	// create GOPATH/nut/<prefix>
-	dir := filepath.Join(NutDir, prefix)
-	PanicIfErr(os.MkdirAll(dir, WorkspaceDirPerm))
-
-	// write file
-	dstFilepath := filepath.Join(dir, nf.FileName())
-	if verbose {
-		log.Printf("Writing %s ...", dstFilepath)
-	}
-	PanicIfErr(ioutil.WriteFile(dstFilepath, b, NutFilePerm))
-	return dstFilepath
-}
-
-// Copy nut to GOPATH/nut/<prefix>/<name>-<version>.nut
-func CopyNut(nutFilepath string, prefix string, verbose bool) {
-	b, nf := ReadNut(nutFilepath)
-
-	// create GOPATH/nut/<prefix>
-	dir := filepath.Join(NutDir, prefix)
-	PanicIfErr(os.MkdirAll(dir, WorkspaceDirPerm))
-
-	// write file
-	dstFilepath := filepath.Join(dir, nf.FileName())
-	if verbose {
-		log.Printf("Copying %s to %s ...", nutFilepath, dstFilepath)
-	}
-	PanicIfErr(ioutil.WriteFile(dstFilepath, b, NutFilePerm))
-}
-
-// Pack files into nut file with given fileName.
-func PackNut(fileName string, files []string, verbose bool) {
-	// write nut to temporary file first
-	nutFile, err := ioutil.TempFile("", "nut-")
-	PanicIfErr(err)
-	defer func() {
-		if nutFile != nil {
-			PanicIfErr(os.Remove(nutFile.Name()))
+		if Config.Debug {
+			// show full backtraces
+			log.Panic(err)
+		} else {
+			log.Fatal(err)
 		}
-	}()
-
-	nutWriter := zip.NewWriter(nutFile)
-	defer func() {
-		if nutWriter != nil {
-			PanicIfErr(nutWriter.Close())
-		}
-	}()
-
-	// add files to nut with all meta information
-	for _, file := range files {
-		if verbose {
-			log.Printf("Packing %s ...", file)
-		}
-
-		fi, err := os.Stat(file)
-		FatalIfErr(err)
-
-		fh, err := zip.FileInfoHeader(fi)
-		PanicIfErr(err)
-		fh.Name = file
-
-		f, err := nutWriter.CreateHeader(fh)
-		PanicIfErr(err)
-
-		b, err := ioutil.ReadFile(file)
-		PanicIfErr(err)
-
-		_, err = f.Write(b)
-		PanicIfErr(err)
-	}
-
-	err = nutWriter.Close()
-	nutWriter = nil
-	PanicIfErr(err)
-
-	PanicIfErr(nutFile.Close())
-
-	// move file to specified location and fix permissions
-	if verbose {
-		log.Printf("Creating %s ...", fileName)
-	}
-	_, err = os.Stat(fileName)
-	if err == nil {
-		// required on Windows
-		PanicIfErr(os.Remove(fileName))
-	}
-	PanicIfErr(os.Rename(nutFile.Name(), fileName))
-	nutFile = nil
-	PanicIfErr(os.Chmod(fileName, NutFilePerm))
-}
-
-// Unpack nut file with given fileName into dir. Creates dir if needed. Removes dir first if asked.
-func UnpackNut(fileName string, dir string, removeDir, verbose bool) {
-	// check dir
-	_, err := os.Stat(dir)
-	if err == nil && removeDir {
-		if verbose {
-			log.Printf("Removing existing directory %s ...", dir)
-		}
-		os.RemoveAll(dir)
-	}
-	PanicIfErr(os.MkdirAll(dir, WorkspaceDirPerm))
-
-	_, nf := ReadNut(fileName)
-
-	for _, file := range nf.Reader.File {
-		if verbose {
-			log.Printf("Unpacking %s ...", file.Name)
-		}
-
-		rc, err := file.Open()
-		PanicIfErr(err)
-		defer rc.Close()
-
-		b, err := ioutil.ReadAll(rc)
-		PanicIfErr(err)
-
-		PanicIfErr(ioutil.WriteFile(filepath.Join(dir, file.Name), b, file.Mode()))
 	}
 }
 
@@ -274,6 +137,134 @@ func InstallPackage(path string, verbose bool) {
 		log.Print(string(out))
 	}
 	FatalIfErr(err)
+}
+
+// TODO common functions below are mess for now
+
+// Read nut file.
+func ReadNut(fileName string) (b []byte, nf *NutFile) {
+	var err error
+	b, err = ioutil.ReadFile(fileName)
+	FatalIfErr(err)
+	nf = new(NutFile)
+	_, err = nf.ReadFrom(bytes.NewReader(b))
+	FatalIfErr(err)
+	return
+}
+
+// Write nut to GOPATH/nut/<prefix>/<name>-<version>.nut
+func WriteNut(b []byte, prefix string, verbose bool) string {
+	nf := new(NutFile)
+	_, err := nf.ReadFrom(bytes.NewReader(b))
+	FatalIfErr(err)
+
+	// create GOPATH/nut/<prefix>
+	dir := filepath.Join(NutDir, prefix)
+	FatalIfErr(os.MkdirAll(dir, WorkspaceDirPerm))
+
+	// write file
+	dstFilepath := filepath.Join(dir, nf.FileName())
+	if verbose {
+		log.Printf("Writing %s ...", dstFilepath)
+	}
+	FatalIfErr(ioutil.WriteFile(dstFilepath, b, NutFilePerm))
+	return dstFilepath
+}
+
+// Pack files into nut file with given fileName.
+func PackNut(fileName string, files []string, verbose bool) {
+	// write nut to temporary file first
+	nutFile, err := ioutil.TempFile("", "nut-")
+	FatalIfErr(err)
+	defer func() {
+		if nutFile != nil {
+			FatalIfErr(os.Remove(nutFile.Name()))
+		}
+	}()
+
+	nutWriter := zip.NewWriter(nutFile)
+	defer func() {
+		if nutWriter != nil {
+			FatalIfErr(nutWriter.Close())
+		}
+	}()
+
+	// add files to nut with all meta information
+	for _, file := range files {
+		if verbose {
+			log.Printf("Packing %s ...", file)
+		}
+
+		fi, err := os.Stat(file)
+		FatalIfErr(err)
+
+		fh, err := zip.FileInfoHeader(fi)
+		FatalIfErr(err)
+		fh.Name = file
+
+		f, err := nutWriter.CreateHeader(fh)
+		FatalIfErr(err)
+
+		b, err := ioutil.ReadFile(file)
+		FatalIfErr(err)
+
+		_, err = f.Write(b)
+		FatalIfErr(err)
+	}
+
+	err = nutWriter.Close()
+	nutWriter = nil
+	FatalIfErr(err)
+
+	FatalIfErr(nutFile.Close())
+
+	// move file to specified location and fix permissions
+	if verbose {
+		log.Printf("Creating %s ...", fileName)
+	}
+	_, err = os.Stat(fileName)
+	if err == nil {
+		// required on Windows
+		FatalIfErr(os.Remove(fileName))
+	}
+	FatalIfErr(os.Rename(nutFile.Name(), fileName))
+	nutFile = nil
+	FatalIfErr(os.Chmod(fileName, NutFilePerm))
+}
+
+// Unpack nut file with given fileName into dir, overwriting files.
+// Creates dir if needed. Removes dir first if asked.
+func UnpackNut(fileName string, dir string, removeDir, verbose bool) {
+	// check dir
+	_, err := os.Stat(dir)
+	if err == nil && removeDir {
+		if verbose {
+			log.Printf("Removing existing directory %s ...", dir)
+		}
+		FatalIfErr(os.RemoveAll(dir))
+	}
+	FatalIfErr(os.MkdirAll(dir, WorkspaceDirPerm))
+
+	nf := new(NutFile)
+	FatalIfErr(nf.ReadFile(fileName))
+
+	for _, file := range nf.Reader.File {
+		if verbose {
+			log.Printf("Unpacking %s ...", file.Name)
+		}
+
+		src, err := file.Open()
+		FatalIfErr(err)
+
+		dst, err := os.OpenFile(filepath.Join(dir, file.Name), os.O_WRONLY|os.O_CREATE|os.O_TRUNC, file.Mode())
+		FatalIfErr(err)
+
+		_, err = io.Copy(dst, src)
+		FatalIfErr(err)
+
+		FatalIfErr(src.Close())
+		FatalIfErr(dst.Close())
+	}
 }
 
 // Return imports present in NutImportPrefixes without altering them.

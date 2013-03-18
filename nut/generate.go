@@ -27,14 +27,21 @@ var (
 func init() {
 	cmdGenerate.Long = `
 Generates or updates spec nut.json for package in current directory.
-	`
+
+Examples:
+    nut generate
+`
 
 	cmdGenerate.Flag.BoolVar(&generateV, "v", false, vHelp)
 }
 
 func runGenerate(cmd *Command) {
 	if !generateV {
-		generateV = config.V
+		generateV = Config.V
+	}
+
+	if len(cmd.Flag.Args()) != 0 {
+		log.Fatal("This command does not accept arguments.")
 	}
 
 	action := "updated"
@@ -42,11 +49,12 @@ func runGenerate(cmd *Command) {
 	var spec *Spec
 
 	// read spec
+	spec = new(Spec)
 	if _, err = os.Stat(SpecFileName); os.IsNotExist(err) {
 		action = "generated"
-		spec = new(Spec)
 	} else {
-		spec = ReadSpec(SpecFileName)
+		err = spec.ReadFile(SpecFileName)
+		FatalIfErr(err)
 	}
 
 	// read package
@@ -68,17 +76,17 @@ func runGenerate(cmd *Command) {
 
 		for _, glob := range globs {
 			files, err := filepath.Glob(glob)
-			PanicIfErr(err)
+			FatalIfErr(err)
 			spec.ExtraFiles = append(spec.ExtraFiles, files...)
 		}
 	}
 
 	// write spec
 	f, err := os.OpenFile(SpecFileName, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, SpecFilePerm)
-	PanicIfErr(err)
+	FatalIfErr(err)
 	defer f.Close()
 	_, err = spec.WriteTo(f)
-	PanicIfErr(err)
+	FatalIfErr(err)
 
 	if generateV {
 		log.Printf("%s %s.", SpecFileName, action)

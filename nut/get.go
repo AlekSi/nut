@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"go/build"
 	"io/ioutil"
@@ -10,6 +11,7 @@ import (
 	"net/http"
 	"net/url"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	. "github.com/AlekSi/nut"
@@ -18,7 +20,7 @@ import (
 var (
 	cmdGet = &Command{
 		Run:       runGet,
-		UsageLine: "get [-p prefix] [-v] [name or URL]",
+		UsageLine: "get [-p prefix] [-v] [name, import path or URL]",
 		Short:     "download and install nut and dependencies",
 	}
 
@@ -29,13 +31,22 @@ var (
 func init() {
 	cmdGet.Long = `
 Downloads and installs nut and dependencies from http://gonuts.io/ or specified URL.
-	`
 
-	cmdGet.Flag.StringVar(&getP, "p", "", "install prefix in workspace, uses hostname if omitted")
+Examples:
+    nut install AlekSi/nut
+    nut install AlekSi/nut/0.2.0
+    nut install gonuts.io/AlekSi/nut
+    nut install gonuts.io/AlekSi/nut/0.2.0
+    nut install http://gonuts.io/AlekSi/nut
+    nut install http://gonuts.io/AlekSi/nut/0.2.0
+`
+
+	cmdGet.Flag.StringVar(&getP, "p", "", "install prefix in workspace, uses hostname from URL if omitted")
 	cmdGet.Flag.BoolVar(&getV, "v", false, vHelp)
 }
 
-func ArgToURL(s string) *url.URL {
+// Parse argument, return URL to get nut from and install prefix.
+func ParseArg(s string) (u *url.URL, prefix string) {
 	var p []string
 	var host string
 	var ok bool
@@ -47,7 +58,8 @@ func ArgToURL(s string) *url.URL {
 
 	p = strings.Split(s, "/")
 	if len(p) > 0 {
-		host, ok = NutImportPrefixes[p[0]]
+		prefix = p[0]
+		host, ok = NutImportPrefixes[prefix]
 	}
 	if ok {
 		// import path style
@@ -55,13 +67,26 @@ func ArgToURL(s string) *url.URL {
 		s = strings.Join(p, "/")
 	} else {
 		// short style
-		s = fmt.Sprintf("http://%s/%s", NutImportPrefixes["gonuts.io"], s)
+		prefix = "gonuts.io"
+		host = NutImportPrefixes[prefix]
+		s = fmt.Sprintf("http://%s/%s", host, s)
 	}
 
 parse:
 	u, err := url.Parse(s)
-	PanicIfErr(err)
-	return u
+	FatalIfErr(err)
+	if prefix == "" {
+		prefix = u.Host
+		if strings.Contains(prefix, ":") {
+			prefix, _, err = net.SplitHostPort(prefix)
+			FatalIfErr(err)
+		}
+		if strings.HasPrefix(prefix, "www.") {
+			prefix = prefix[4:]
+		}
+	}
+
+	return
 }
 
 func get(url *url.URL) (b []byte, err error) {
@@ -101,7 +126,7 @@ func get(url *url.URL) (b []byte, err error) {
 
 func runGet(cmd *Command) {
 	if !getV {
-		getV = config.V
+		getV = Config.V
 	}
 
 	args := cmd.Flag.Args()
@@ -109,50 +134,69 @@ func runGet(cmd *Command) {
 	// zero arguments is a special case – install dependencies for package in current directory
 	if len(args) == 0 {
 		pack, err := build.ImportDir(".", 0)
-		PanicIfErr(err)
+		FatalIfErr(err)
 		args = NutImports(pack.Imports)
 		if getV && len(args) != 0 {
 			log.Printf("%s depends on nuts: %s", pack.Name, strings.Join(args, ","))
 		}
 	}
 
-	installPaths := make(map[string]bool, len(args))
+	urlsToPaths := make(map[string]string, len(args))
 	for len(args) != 0 {
 		arg := args[0]
 		args = args[1:]
 
-		url := ArgToURL(arg)
+		url, prefix := ParseArg(arg)
+
+		// do not download twice
+		_, present := urlsToPaths[url.String()]
+		if present {
+			continue
+		}
+
 		b, err := get(url)
-		PanicIfErr(err)
+		if err != nil {
+			log.Print(err)
+
+			var body map[string]interface{}
+			err = json.Unmarshal(b, &body)
+			if err != nil {
+				log.Print(err)
+			}
+			m, ok := body["Message"]
+			if ok {
+				log.Fatalf("%s", m)
+			} else {
+				log.Fatalf("Response: %#q", body)
+			}
+		}
 
 		nf := new(NutFile)
-		nf.ReadFrom(bytes.NewReader(b))
+		_, err = nf.ReadFrom(bytes.NewReader(b))
+		FatalIfErr(err)
 		deps := NutImports(nf.Imports)
 		if getV && len(deps) != 0 {
-			log.Printf("%s depends on nuts: %s", nf.Name, strings.Join(deps, ","))
+			log.Printf("%s depends on nuts: %s", nf.Name, strings.Join(deps, ", "))
 		}
 		args = append(args, deps...)
 
 		p := getP
 		if p == "" {
-			if strings.Contains(url.Host, ":") {
-				p, _, err = net.SplitHostPort(url.Host)
-				PanicIfErr(err)
-			} else {
-				p = url.Host
-			}
-			if strings.HasPrefix(p, "www.") {
-				p = p[4:]
-			}
+			p = prefix
 		}
 		fileName := WriteNut(b, p, getV)
-		path := filepath.Join(p, nf.Name, nf.Version.String())
-
+		path := nf.ImportPath(p)
 		UnpackNut(fileName, filepath.Join(SrcDir, path), true, getV)
-		installPaths[path] = true
+		urlsToPaths[url.String()] = path
 	}
 
-	for path := range installPaths {
+	// install in lexical order (useful in integration tests)
+	paths := make([]string, 0, len(urlsToPaths))
+	for _, path := range urlsToPaths {
+		paths = append(paths, path)
+	}
+	sort.Strings(paths)
+	for _, path := range paths {
 		InstallPackage(path, getV)
 	}
 }

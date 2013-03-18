@@ -22,26 +22,34 @@ func (g *G) TearDownSuite(*C) {
 	delete(NutImportPrefixes, "express42.com")
 }
 
-func (*G) TestArgToURL(c *C) {
-	// short style
-	c.Check(ArgToURL("test_nut1").String(), Equals, "http://server/test_nut1")
-	c.Check(ArgToURL("test_nut1/0.0.1").String(), Equals, "http://server/test_nut1/0.0.1")
+func (*G) TestParseArg(c *C) {
+	data := [][3]string{
+		// short style
+		{"AlekSi/test_nut1", "http://server/AlekSi/test_nut1", "gonuts.io"},
+		{"AlekSi/test_nut1/0.0.1", "http://server/AlekSi/test_nut1/0.0.1", "gonuts.io"},
 
-	// import path style
-	c.Check(ArgToURL("gonuts.io/test_nut1").String(), Equals, "http://server/test_nut1")
-	c.Check(ArgToURL("gonuts.io/test_nut1/0.0.1").String(), Equals, "http://server/test_nut1/0.0.1")
-	c.Check(ArgToURL("express42.com/nuts/test_nut1").String(), Equals, "http://express42.com/nuts/test_nut1")
-	c.Check(ArgToURL("express42.com/nuts/test_nut1/0.0.1").String(), Equals, "http://express42.com/nuts/test_nut1/0.0.1")
+		// import path style
+		{"gonuts.io/AlekSi/test_nut1", "http://server/AlekSi/test_nut1", "gonuts.io"},
+		{"gonuts.io/AlekSi/test_nut1/0.0.1", "http://server/AlekSi/test_nut1/0.0.1", "gonuts.io"},
+		{"express42.com/nuts/AlekSi/test_nut1", "http://express42.com/nuts/AlekSi/test_nut1", "express42.com"},
+		{"express42.com/nuts/AlekSi/test_nut1/0.0.1", "http://express42.com/nuts/AlekSi/test_nut1/0.0.1", "express42.com"},
 
-	// full URL - as is
-	c.Check(ArgToURL("http://www.gonuts.io/test_nut1").String(), Equals, "http://www.gonuts.io/test_nut1")
-	c.Check(ArgToURL("http://www.gonuts.io/test_nut1/0.0.1").String(), Equals, "http://www.gonuts.io/test_nut1/0.0.1")
-	c.Check(ArgToURL("http://localhost:8080/test_nut1-0.0.1.nut").String(), Equals, "http://localhost:8080/test_nut1-0.0.1.nut")
-	c.Check(ArgToURL("http://example.com/test_nut1-0.0.1.nut").String(), Equals, "http://example.com/test_nut1-0.0.1.nut")
-	c.Check(ArgToURL("https://example.com/test_nut1-0.0.1.nut").String(), Equals, "https://example.com/test_nut1-0.0.1.nut")
+		// full URL - as is
+		{"http://www.gonuts.io/AlekSi/test_nut1", "http://www.gonuts.io/AlekSi/test_nut1", "gonuts.io"},
+		{"http://www.gonuts.io/AlekSi/test_nut1/0.0.1", "http://www.gonuts.io/AlekSi/test_nut1/0.0.1", "gonuts.io"},
+		{"http://localhost:8080/AlekSi/test_nut1-0.0.1.nut", "http://localhost:8080/AlekSi/test_nut1-0.0.1.nut", "localhost"},
+		{"http://example.com/nuts/test_nut1-0.0.1.nut", "http://example.com/nuts/test_nut1-0.0.1.nut", "example.com"},
+		{"https://example.com/nuts/test_nut1-0.0.1.nut", "https://example.com/nuts/test_nut1-0.0.1.nut", "example.com"},
+	}
+
+	for _, d := range data {
+		u, prefix := ParseArg(d[0])
+		c.Check(u.String(), Equals, d[1])
+		c.Check(prefix, Equals, d[2])
+	}
 }
 
 func (*G) TestNutImports(c *C) {
-	actual := NutImports([]string{"fmt", "log/syslog", "github.com/AlekSi/nut", "gonuts.io/test_nut1"})
-	c.Check(actual, DeepEquals, []string{"gonuts.io/test_nut1"})
+	actual := NutImports([]string{"fmt", "log/syslog", "github.com/AlekSi/nut", "gonuts.io/AlekSi/test_nut1"})
+	c.Check(actual, DeepEquals, []string{"gonuts.io/AlekSi/test_nut1"})
 }

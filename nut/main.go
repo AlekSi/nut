@@ -1,4 +1,4 @@
-// Package main implements 'nut' command. Code there is not considered to be a public API, and may change without notice.
+// Package main implements 'nut' command (NOT A PUBLIC API).
 package main
 
 import (
@@ -19,10 +19,10 @@ type Command struct {
 	// The first word in the line is taken to be the command name.
 	UsageLine string
 
-	// Short is the short description shown in the 'nut help' output.
+	// Short is the short description shown in the 'nut help' / ''nut -h' output.
 	Short string
 
-	// Long is the long message shown in the 'nut help <this-command>' output.
+	// Long is the long message shown in the 'nut help <this-command>' / 'nut <this-command> -h' output.
 	Long string
 
 	// Flag is a set of flags specific to this command.
@@ -51,6 +51,7 @@ func (c *Command) Usage() {
 var Commands = []*Command{cmdCheck, cmdGenerate, cmdGet, cmdInstall, cmdPack, cmdPublish, cmdUnpack}
 
 var usageTemplate = template.Must(template.New("top").Parse(`Nut is a tool for managing versioned Go source code packages.
+Version 0.3.dev.
 
 Usage:
 
@@ -68,7 +69,7 @@ Use "nut help [command]" for more information about a command.
 func help(args ...string) {
 	if len(args) == 0 {
 		flag.Usage()
-		os.Exit(0)
+		os.Exit(2)
 	}
 	if len(args) != 1 {
 		log.Print("usage: nut help [command]\n\nToo many arguments given.")
@@ -79,7 +80,7 @@ func help(args ...string) {
 	for _, cmd := range Commands {
 		if cmd.Name() == arg {
 			cmd.Usage()
-			os.Exit(0)
+			os.Exit(2)
 		}
 	}
 
@@ -89,7 +90,7 @@ func help(args ...string) {
 
 func main() {
 	flag.Usage = func() {
-		usageTemplate.Execute(os.Stderr, Commands)
+		FatalIfErr(usageTemplate.Execute(os.Stderr, Commands))
 		flag.PrintDefaults()
 	}
 
@@ -106,8 +107,11 @@ func main() {
 
 	for _, cmd := range Commands {
 		if cmd.Name() == args[0] {
-			cmd.Flag.Usage = func() { cmd.Usage() }
-			cmd.Flag.Parse(args[1:])
+			cmd.Flag.Usage = func() {
+				cmd.Usage()
+				os.Exit(2)
+			}
+			FatalIfErr(cmd.Flag.Parse(args[1:]))
 			cmd.Run(cmd)
 			os.Exit(0)
 		}

@@ -19,7 +19,10 @@ var (
 func init() {
 	cmdUnpack.Long = `
 Unpacks nut into current directory.
-	`
+
+Examples:
+    nut unpack test_nut1-0.0.1.nut
+`
 
 	cmdUnpack.Flag.BoolVar(&unpackNC, "nc", false, "no check (not recommended)")
 	cmdUnpack.Flag.BoolVar(&unpackV, "v", false, vHelp)
@@ -27,7 +30,7 @@ Unpacks nut into current directory.
 
 func runUnpack(cmd *Command) {
 	if !unpackV {
-		unpackV = config.V
+		unpackV = Config.V
 	}
 
 	if len(cmd.Flag.Args()) != 1 {
@@ -50,7 +53,7 @@ func runUnpack(cmd *Command) {
 
 	// unpack nut
 	dir, err := os.Getwd()
-	PanicIfErr(err)
+	FatalIfErr(err)
 	UnpackNut(fileName, dir, false, unpackV)
 	if unpackV {
 		log.Printf("%s unpacked.", fileName)

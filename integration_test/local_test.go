@@ -36,6 +36,7 @@ nut.json generated.
 
 Now you should edit nut.json to fix following errors:
     Version "0.0.0" is invalid.
+    Vendor should contain only word characters (match "^[0-9A-Za-z_]+$").
     "Crazy Nutter" is not a real person.
 
 After that run 'nut check' to check spec again.`[1:]
@@ -47,6 +48,7 @@ After that run 'nut check' to check spec again.`[1:]
 	expected = `
 Found errors in nut.json:
     Version "0.0.0" is invalid.
+    Vendor should contain only word characters (match "^[0-9A-Za-z_]+$").
     "Crazy Nutter" is not a real person.`[1:]
 	c.Check(stderr, Equals, expected)
 
@@ -90,4 +92,28 @@ func (*L) TestPackCheckUnpack(c *C) {
 	} else {
 		c.Check(strings.HasSuffix(stderr, "README: no such file or directory"), Equals, true)
 	}
+}
+
+func (*L) TestPackInstall(c *C) {
+	packages := make(map[string]bool)
+	stdout, _ := runGo(c, TestNut1, "list all")
+	for _, p := range strings.Split(stdout, "\n") {
+		packages[p] = true
+	}
+
+	_, stderr := runNut(c, TestNut1, "pack -v")
+	c.Check(strings.HasSuffix(stderr, "test_nut1-0.0.1.nut created."), Equals, true)
+	gitNoDiff(c, TestNut1)
+
+	_, stderr = runNut(c, TestNut1, "install -v test_nut1-0.0.1.nut")
+	c.Check(strings.HasSuffix(stderr, "localhost/debug/test_nut1"), Equals, true)
+
+	stdout, _ = runGo(c, TestNut1, "list all")
+	var newPackages []string
+	for _, p := range strings.Split(stdout, "\n") {
+		if !packages[p] {
+			newPackages = append(newPackages, p)
+		}
+	}
+	c.Check(newPackages, DeepEquals, []string{"localhost/debug/test_nut1"})
 }
