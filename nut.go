@@ -183,10 +183,10 @@ func (nf *NutFile) context() (ctxt *build.Context) {
 	*ctxt = build.Default
 
 	// FIXME path is ignored (multi-package nuts are not supported yet)
-	ctxt.ReadDir = func(path string) (fi []os.FileInfo, err error) {
+	ctxt.ReadDir = func(path string) ([]os.FileInfo, error) {
 		// log.Printf("nf.ReadDir %q", path)
 
-		fi = make([]os.FileInfo, len(nf.Reader.File))
+		fi := make([]os.FileInfo, len(nf.Reader.File))
 		for i, f := range nf.Reader.File {
 			fi[i] = f.FileInfo()
 		}
