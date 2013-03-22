@@ -4,29 +4,38 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 // Current format.
-var DependencyRegexp = regexp.MustCompile(`^(\d+|\*).(\d+|\*).(\d+|\*)$`)
+var NutDependencyRegexp = regexp.MustCompile(`^(\d+|\*).(\d+|\*).(\d+|\*)$`)
 
 // Describes dependency information.
 type Dependency struct {
-	Name    string // Nut name
-	Version string // Nut version expression
+	ImportPath string
+	Version    string
 }
 
 func (d Dependency) String() string {
-	return fmt.Sprintf("%s (%s)", d.Name, d.Version)
+	return fmt.Sprintf("%s (%s)", d.ImportPath, d.Version)
 }
 
-func (d *Dependency) Matches(nut *Nut) bool {
-	// check name
-	if d.Name != nut.Name {
+func (d *Dependency) OnNut() bool {
+	return !strings.Contains(d.Version, ":")
+}
+
+func (d *Dependency) Matches(prefix string, nut *Nut) bool {
+	if !d.OnNut() {
+		panic(fmt.Errorf("Not a nut: (%#v).Matches(%#v)", d, nut))
+	}
+
+	// check import path
+	if d.ImportPath != nut.ImportPath(prefix) {
 		return false
 	}
 
 	// check exact matching and wildcards
-	match := DependencyRegexp.FindAllStringSubmatch(d.Version, -1)
+	match := NutDependencyRegexp.FindAllStringSubmatch(d.Version, -1)
 	if match != nil {
 		major_s := match[0][1]
 		minor_s := match[0][2]

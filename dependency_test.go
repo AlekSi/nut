@@ -25,28 +25,28 @@ func (d *D) SetUpTest(c *C) {
 }
 
 func (d *D) TestMatchesOtherName(c *C) {
-	dep := &Dependency{Name: "crazy", Version: "0.0.1"}
-	c.Check(dep.Matches(d.nut), Equals, false)
+	dep := &Dependency{ImportPath: "gonuts.io/debug/crazy", Version: "0.0.1"}
+	c.Check(dep.Matches("gonuts.io", d.nut), Equals, false)
 }
 
 func (d *D) TestMatchesExact(c *C) {
-	dep := &Dependency{Name: "test_nut1", Version: "0.0.1"}
-	c.Check(dep.Matches(d.nut), Equals, true)
+	dep := &Dependency{ImportPath: "gonuts.io/debug/test_nut1", Version: "0.0.1"}
+	c.Check(dep.Matches("gonuts.io", d.nut), Equals, true)
 
 	for _, v := range []string{"0.0.9", "0.9.1", "9.0.1"} {
-		dep := &Dependency{Name: "test_nut1", Version: v}
-		c.Check(dep.Matches(d.nut), Equals, false)
+		dep := &Dependency{ImportPath: "gonuts.io/debug/test_nut1", Version: v}
+		c.Check(dep.Matches("gonuts.io", d.nut), Equals, false)
 	}
 }
 
 func (d *D) TestMatchesWildcard(c *C) {
 	for _, v := range []string{"*.*.*", "0.*.*", "0.0.*"} {
-		dep := &Dependency{Name: "test_nut1", Version: v}
-		c.Check(dep.Matches(d.nut), Equals, true, Commentf("Dependency %q should match %v", dep, d.nut))
+		dep := &Dependency{ImportPath: "gonuts.io/debug/test_nut1", Version: v}
+		c.Check(dep.Matches("gonuts.io", d.nut), Equals, true, Commentf("Dependency %q should match %v", dep, d.nut))
 	}
 
 	for _, v := range []string{"9.*.*", "*.9.*", "*.*.9"} {
-		dep := &Dependency{Name: "test_nut1", Version: v}
-		c.Check(dep.Matches(d.nut), Equals, false, Commentf("Dependency %q should not match %v", dep, d.nut))
+		dep := &Dependency{ImportPath: "gonuts.io/debug/test_nut1", Version: v}
+		c.Check(dep.Matches("gonuts.io", d.nut), Equals, false, Commentf("Dependency %q should not match %v", dep, d.nut))
 	}
 }
