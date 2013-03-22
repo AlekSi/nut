@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	cmdCheck = &Command{
+	cmdCheck = &command{
 		Run:       runCheck,
 		UsageLine: "check [-v] [filenames]",
 		Short:     "check specs and nuts for errors",
@@ -33,7 +33,7 @@ Examples:
 	cmdCheck.Flag.BoolVar(&checkV, "v", false, vHelp)
 }
 
-func runCheck(cmd *Command) {
+func runCheck(cmd *command) {
 	if !checkV {
 		checkV = Config.V
 	}
@@ -51,16 +51,16 @@ func runCheck(cmd *Command) {
 		case "json":
 			spec := new(Spec)
 			err := spec.ReadFile(arg)
-			FatalIfErr(err)
+			fatalIfErr(err)
 			pack, err := build.ImportDir(".", 0)
-			FatalIfErr(err)
+			fatalIfErr(err)
 			errors = spec.Check()
 			errors = append(errors, CheckPackage(pack)...)
 
 		case "nut":
 			nf := new(NutFile)
 			err := nf.ReadFile(arg)
-			FatalIfErr(err)
+			fatalIfErr(err)
 			errors = nf.Check()
 
 		default:

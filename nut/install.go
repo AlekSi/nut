@@ -8,11 +8,11 @@ import (
 )
 
 const (
-	WorkspaceDirPerm = 0755
+	workspaceDirPerm = 0755
 )
 
 var (
-	cmdInstall = &Command{
+	cmdInstall = &command{
 		Run:       runInstall,
 		UsageLine: "install [-nc] [-p prefix] [-v] [filenames]",
 		Short:     "unpack nut and install package",
@@ -39,13 +39,13 @@ Examples:
 	cmdInstall.Flag.BoolVar(&installV, "v", false, vHelp)
 }
 
-func runInstall(cmd *Command) {
+func runInstall(cmd *command) {
 	if !installV {
 		installV = Config.V
 	}
 
 	for _, arg := range cmd.Flag.Args() {
-		b, nf := ReadNut(arg)
+		b, nf := readNut(arg)
 
 		if nf.Name == "main" {
 			log.Fatal(`Binaries (package "main") are not supported yet.`)
@@ -64,19 +64,19 @@ func runInstall(cmd *Command) {
 		}
 
 		// copy nut
-		dstFile := filepath.Join(NutDir, nf.FilePath(installP))
+		dstFile := filepath.Join(nutDir, nf.FilePath(installP))
 		if installV {
 			log.Printf("Copying %s to %s ...", arg, dstFile)
 		}
-		FatalIfErr(os.MkdirAll(filepath.Dir(dstFile), WorkspaceDirPerm))
-		FatalIfErr(ioutil.WriteFile(dstFile, b, NutFilePerm))
+		fatalIfErr(os.MkdirAll(filepath.Dir(dstFile), workspaceDirPerm))
+		fatalIfErr(ioutil.WriteFile(dstFile, b, nutFilePerm))
 
-		srcPath := filepath.Join(SrcDir, nf.ImportPath(installP))
+		srcPath := filepath.Join(srcDir, nf.ImportPath(installP))
 		if installV {
 			log.Printf("Unpacking into %s ...", srcPath)
 		}
-		UnpackNut(dstFile, srcPath, true, installV)
+		unpackNut(dstFile, srcPath, true, installV)
 
-		InstallPackage(nf.ImportPath(installP), installV)
+		installPackage(nf.ImportPath(installP), installV)
 	}
 }

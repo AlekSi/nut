@@ -7,12 +7,8 @@ import (
 	. "github.com/AlekSi/nut"
 )
 
-const (
-	NutFilePerm = 0644
-)
-
 var (
-	cmdPack = &Command{
+	cmdPack = &command{
 		Run:       runPack,
 		UsageLine: "pack [-nc] [-o filename] [-v]",
 		Short:     "pack package in current directory into nut",
@@ -36,7 +32,7 @@ Examples:
 	cmdPack.Flag.BoolVar(&packV, "v", false, vHelp)
 }
 
-func runPack(cmd *Command) {
+func runPack(cmd *command) {
 	if !packV {
 		packV = Config.V
 	}
@@ -57,7 +53,7 @@ func runPack(cmd *Command) {
 	ctxt := build.Default
 	ctxt.UseAllFiles = true
 	pack, err := ctxt.ImportDir(".", 0)
-	FatalIfErr(err)
+	fatalIfErr(err)
 
 	if pack.Name == "main" {
 		log.Fatal(`Binaries (package "main") are not supported yet.`)
@@ -66,7 +62,7 @@ func runPack(cmd *Command) {
 	var fileName string
 	spec := new(Spec)
 	err = spec.ReadFile(SpecFileName)
-	FatalIfErr(err)
+	fatalIfErr(err)
 	nut := Nut{Spec: *spec, Package: *pack}
 	if packO == "" {
 		fileName = nut.FileName()
@@ -93,7 +89,7 @@ func runPack(cmd *Command) {
 	files = append(files, spec.ExtraFiles...)
 	files = append(files, SpecFileName)
 
-	PackNut(fileName, files, packV)
+	packNut(fileName, files, packV)
 	if packV {
 		log.Printf("%s created.", fileName)
 	}

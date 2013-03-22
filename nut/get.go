@@ -18,7 +18,7 @@ import (
 )
 
 var (
-	cmdGet = &Command{
+	cmdGet = &command{
 		Run:       runGet,
 		UsageLine: "get [-p prefix] [-v] [name, import path or URL]",
 		Short:     "download and install nut and dependencies",
@@ -74,12 +74,12 @@ func ParseArg(s string) (u *url.URL, prefix string) {
 
 parse:
 	u, err := url.Parse(s)
-	FatalIfErr(err)
+	fatalIfErr(err)
 	if prefix == "" {
 		prefix = u.Host
 		if strings.Contains(prefix, ":") {
 			prefix, _, err = net.SplitHostPort(prefix)
-			FatalIfErr(err)
+			fatalIfErr(err)
 		}
 		if strings.HasPrefix(prefix, "www.") {
 			prefix = prefix[4:]
@@ -124,7 +124,7 @@ func get(url *url.URL) (b []byte, err error) {
 	return
 }
 
-func runGet(cmd *Command) {
+func runGet(cmd *command) {
 	if !getV {
 		getV = Config.V
 	}
@@ -134,7 +134,7 @@ func runGet(cmd *Command) {
 	// zero arguments is a special case – install dependencies for package in current directory
 	if len(args) == 0 {
 		pack, err := build.ImportDir(".", 0)
-		FatalIfErr(err)
+		fatalIfErr(err)
 		args = NutImports(pack.Imports)
 		if getV && len(args) != 0 {
 			log.Printf("%s depends on nuts: %s", pack.Name, strings.Join(args, ","))
@@ -173,7 +173,7 @@ func runGet(cmd *Command) {
 
 		nf := new(NutFile)
 		_, err = nf.ReadFrom(bytes.NewReader(b))
-		FatalIfErr(err)
+		fatalIfErr(err)
 		deps := NutImports(nf.Imports)
 		if getV && len(deps) != 0 {
 			log.Printf("%s depends on nuts: %s", nf.Name, strings.Join(deps, ", "))
@@ -184,9 +184,9 @@ func runGet(cmd *Command) {
 		if p == "" {
 			p = prefix
 		}
-		fileName := WriteNut(b, p, getV)
+		fileName := writeNut(b, p, getV)
 		path := nf.ImportPath(p)
-		UnpackNut(fileName, filepath.Join(SrcDir, path), true, getV)
+		unpackNut(fileName, filepath.Join(srcDir, path), true, getV)
 		urlsToPaths[url.String()] = path
 	}
 
@@ -197,6 +197,6 @@ func runGet(cmd *Command) {
 	}
 	sort.Strings(paths)
 	for _, path := range paths {
-		InstallPackage(path, getV)
+		installPackage(path, getV)
 	}
 }

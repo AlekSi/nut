@@ -9,11 +9,11 @@ import (
 	"text/template"
 )
 
-// A Command is an implementation of a nut command like nut get or nut install.
-type Command struct {
+// A command is an implementation of a nut command like nut get or nut install.
+type command struct {
 	// Run runs the command.
 	// To access args use cmd.Flag.Args().
-	Run func(cmd *Command)
+	Run func(cmd *command)
 
 	// UsageLine is the one-line usage message.
 	// The first word in the line is taken to be the command name.
@@ -30,7 +30,7 @@ type Command struct {
 }
 
 // Name returns the command's name: the first word in the usage line.
-func (c *Command) Name() string {
+func (c *command) Name() string {
 	name := c.UsageLine
 	i := strings.Index(name, " ")
 	if i >= 0 {
@@ -39,16 +39,16 @@ func (c *Command) Name() string {
 	return name
 }
 
-func (c *Command) Usage() {
+func (c *command) Usage() {
 	log.Printf("usage: %s", c.UsageLine)
 	log.Printf("\n%s\n\n", strings.TrimSpace(c.Long))
 	log.Print("Flags:")
 	c.Flag.PrintDefaults()
 }
 
-// Commands lists the available commands.
+// commands lists the available commands.
 // The order here is the order in which they are printed by 'nut help'.
-var Commands = []*Command{cmdCheck, cmdGenerate, cmdGet, cmdInstall, cmdPack, cmdPublish, cmdUnpack}
+var commands = []*command{cmdCheck, cmdGenerate, cmdGet, cmdInstall, cmdPack, cmdPublish, cmdUnpack}
 
 var usageTemplate = template.Must(template.New("top").Parse(`Nut is a tool for managing versioned Go source code packages.
 Version 0.3.dev.
@@ -77,7 +77,7 @@ func help(args ...string) {
 	}
 
 	arg := args[0]
-	for _, cmd := range Commands {
+	for _, cmd := range commands {
 		if cmd.Name() == arg {
 			cmd.Usage()
 			os.Exit(2)
@@ -90,7 +90,7 @@ func help(args ...string) {
 
 func main() {
 	flag.Usage = func() {
-		FatalIfErr(usageTemplate.Execute(os.Stderr, Commands))
+		fatalIfErr(usageTemplate.Execute(os.Stderr, commands))
 		flag.PrintDefaults()
 	}
 
@@ -105,13 +105,13 @@ func main() {
 		panic("not reached")
 	}
 
-	for _, cmd := range Commands {
+	for _, cmd := range commands {
 		if cmd.Name() == args[0] {
 			cmd.Flag.Usage = func() {
 				cmd.Usage()
 				os.Exit(2)
 			}
-			FatalIfErr(cmd.Flag.Parse(args[1:]))
+			fatalIfErr(cmd.Flag.Parse(args[1:]))
 			cmd.Run(cmd)
 			os.Exit(0)
 		}

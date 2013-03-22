@@ -11,11 +11,11 @@ import (
 )
 
 const (
-	SpecFilePerm = 0644
+	specFilePerm = 0644
 )
 
 var (
-	cmdGenerate = &Command{
+	cmdGenerate = &command{
 		Run:       runGenerate,
 		UsageLine: "generate [-v]",
 		Short:     "generate or update spec for package in current directory",
@@ -35,7 +35,7 @@ Examples:
 	cmdGenerate.Flag.BoolVar(&generateV, "v", false, vHelp)
 }
 
-func runGenerate(cmd *Command) {
+func runGenerate(cmd *command) {
 	if !generateV {
 		generateV = Config.V
 	}
@@ -54,12 +54,12 @@ func runGenerate(cmd *Command) {
 		action = "generated"
 	} else {
 		err = spec.ReadFile(SpecFileName)
-		FatalIfErr(err)
+		fatalIfErr(err)
 	}
 
 	// read package
 	pack, err := build.ImportDir(".", 0)
-	FatalIfErr(err)
+	fatalIfErr(err)
 
 	// add example author
 	if len(spec.Authors) == 0 {
@@ -76,17 +76,17 @@ func runGenerate(cmd *Command) {
 
 		for _, glob := range globs {
 			files, err := filepath.Glob(glob)
-			FatalIfErr(err)
+			fatalIfErr(err)
 			spec.ExtraFiles = append(spec.ExtraFiles, files...)
 		}
 	}
 
 	// write spec
-	f, err := os.OpenFile(SpecFileName, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, SpecFilePerm)
-	FatalIfErr(err)
+	f, err := os.OpenFile(SpecFileName, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, specFilePerm)
+	fatalIfErr(err)
 	defer f.Close()
 	_, err = spec.WriteTo(f)
-	FatalIfErr(err)
+	fatalIfErr(err)
 
 	if generateV {
 		log.Printf("%s %s.", SpecFileName, action)

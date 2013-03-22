@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	cmdPublish = &Command{
+	cmdPublish = &command{
 		Run:       runPublish,
 		UsageLine: "publish [-token token] [-v] [filename]",
 		Short:     "publish nut on gonuts.io",
@@ -29,12 +29,12 @@ Examples:
     nut publish test_nut1-0.0.1.nut
 `
 
-	tokenHelp := fmt.Sprintf("access token from http://gonuts.io/-/me (may be read from ~/%s)", ConfigFileName)
+	tokenHelp := fmt.Sprintf("access token from http://gonuts.io/-/me (may be read from ~/%s)", configFileName)
 	cmdPublish.Flag.StringVar(&publishToken, "token", "", tokenHelp)
 	cmdPublish.Flag.BoolVar(&publishV, "v", false, vHelp)
 }
 
-func runPublish(cmd *Command) {
+func runPublish(cmd *command) {
 	if publishToken == "" {
 		publishToken = Config.Token
 	}
@@ -43,10 +43,10 @@ func runPublish(cmd *Command) {
 	}
 
 	url, err := url.Parse("http://" + NutImportPrefixes["gonuts.io"])
-	FatalIfErr(err)
+	fatalIfErr(err)
 
 	for _, arg := range cmd.Flag.Args() {
-		b, nf := ReadNut(arg)
+		b, nf := readNut(arg)
 		url.Path = fmt.Sprintf("/%s/%s/%s", nf.Vendor, nf.Name, nf.Version)
 
 		if publishV {
@@ -54,17 +54,17 @@ func runPublish(cmd *Command) {
 		}
 		url.RawQuery = "token=" + publishToken
 		req, err := http.NewRequest("PUT", url.String(), bytes.NewReader(b))
-		FatalIfErr(err)
+		fatalIfErr(err)
 		req.Header.Set("User-Agent", "nut publisher")
 		req.Header.Set("Content-Type", "application/zip")
 		req.ContentLength = int64(len(b))
 
 		res, err := http.DefaultClient.Do(req)
-		FatalIfErr(err)
+		fatalIfErr(err)
 		b, err = ioutil.ReadAll(res.Body)
-		FatalIfErr(err)
+		fatalIfErr(err)
 		err = res.Body.Close()
-		FatalIfErr(err)
+		fatalIfErr(err)
 
 		var body map[string]interface{}
 		err = json.Unmarshal(b, &body)

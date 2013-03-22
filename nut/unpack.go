@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	cmdUnpack = &Command{
+	cmdUnpack = &command{
 		Run:       runUnpack,
 		UsageLine: "unpack [-nc] [-v] [filename]",
 		Short:     "unpack nut into current directory",
@@ -28,7 +28,7 @@ Examples:
 	cmdUnpack.Flag.BoolVar(&unpackV, "v", false, vHelp)
 }
 
-func runUnpack(cmd *Command) {
+func runUnpack(cmd *command) {
 	if !unpackV {
 		unpackV = Config.V
 	}
@@ -40,7 +40,7 @@ func runUnpack(cmd *Command) {
 
 	// check nut
 	if !unpackNC {
-		_, nf := ReadNut(fileName)
+		_, nf := readNut(fileName)
 		errors := nf.Check()
 		if len(errors) != 0 {
 			log.Print("Found errors:")
@@ -53,8 +53,8 @@ func runUnpack(cmd *Command) {
 
 	// unpack nut
 	dir, err := os.Getwd()
-	FatalIfErr(err)
-	UnpackNut(fileName, dir, false, unpackV)
+	fatalIfErr(err)
+	unpackNut(fileName, dir, false, unpackV)
 	if unpackV {
 		log.Printf("%s unpacked.", fileName)
 	}
