@@ -8,12 +8,20 @@ import (
 )
 
 // Current format.
-var NutDependencyRegexp = regexp.MustCompile(`^(\d+|\*).(\d+|\*).(\d+|\*)$`)
+var DependencyRegexp = regexp.MustCompile(`^(\d+|\*).(\d+|\*).(\d+|\*)$`)
 
 // Describes dependency information.
 type Dependency struct {
 	ImportPath string
 	Version    string
+}
+
+func NewDependency(importPath, version string) (d *Dependency, err error) {
+	d = &Dependency{importPath, version}
+	if d.OnNut() && !DependencyRegexp.MatchString(version) {
+		err = fmt.Errorf("Bad format for nut dependency %q.", version)
+	}
+	return
 }
 
 func (d Dependency) String() string {
@@ -35,7 +43,7 @@ func (d *Dependency) Matches(prefix string, nut *Nut) bool {
 	}
 
 	// check exact matching and wildcards
-	match := NutDependencyRegexp.FindAllStringSubmatch(d.Version, -1)
+	match := DependencyRegexp.FindAllStringSubmatch(d.Version, -1)
 	if match != nil {
 		major_s := match[0][1]
 		minor_s := match[0][2]
