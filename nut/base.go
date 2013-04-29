@@ -20,9 +20,12 @@ import (
 )
 
 type configFile struct {
-	Token string
-	V     bool
-	Debug bool
+	Token    string
+	Vendor   string
+	FullName string
+	Email    string
+	V        bool
+	Debug    bool
 }
 
 const (
@@ -85,6 +88,13 @@ func init() {
 	if err != nil && !os.IsNotExist(err) {
 		log.Printf("Warning: Can't load config from %s: %s\n", path, err)
 		Config = configFile{}
+	}
+
+	if Config.FullName == "" {
+		Config.FullName = ExampleFullName
+	}
+	if Config.Email == "" {
+		Config.Email = ExampleEmail
 	}
 
 	// write config if file exists
