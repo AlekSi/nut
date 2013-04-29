@@ -64,7 +64,7 @@ func runGenerate(cmd *command) {
 
 	// add example author
 	if len(spec.Authors) == 0 {
-		spec.Authors = []Person{{FullName: Config.FullName, Email: Config.Email}}
+		spec.Authors = []Person{Config.Author}
 	}
 
 	// some extra files

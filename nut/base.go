@@ -20,12 +20,11 @@ import (
 )
 
 type configFile struct {
-	Token    string
-	Vendor   string
-	FullName string
-	Email    string
-	V        bool
-	Debug    bool
+	Token  string
+	Vendor string
+	Author Person
+	V      bool
+	Debug  bool
 }
 
 const (
@@ -90,11 +89,11 @@ func init() {
 		Config = configFile{}
 	}
 
-	if Config.FullName == "" {
-		Config.FullName = ExampleFullName
+	if Config.Author.FullName == "" {
+		Config.Author.FullName = ExampleFullName
 	}
-	if Config.Email == "" {
-		Config.Email = ExampleEmail
+	if Config.Author.Email == "" {
+		Config.Author.Email = ExampleEmail
 	}
 
 	// write config if file exists
