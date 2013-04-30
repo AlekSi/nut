@@ -1,8 +1,10 @@
 package nut
 
 import (
+	"encoding/json"
 	"fmt"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -61,4 +63,45 @@ func (d *Dependency) Matches(prefix string, nut *Nut) bool {
 	}
 
 	return false
+}
+
+type Dependencies []Dependency
+
+// check interface
+var (
+	_ sort.Interface   = &Dependencies{}
+	_ json.Marshaler   = &Dependencies{}
+	_ json.Unmarshaler = &Dependencies{}
+)
+
+func (deps Dependencies) Len() int           { return len(deps) }
+func (deps Dependencies) Less(i, j int) bool { return deps[i].ImportPath < deps[j].ImportPath }
+func (deps Dependencies) Swap(i, j int)      { deps[i], deps[j] = deps[j], deps[i] }
+
+func (deps *Dependencies) MarshalJSON() (b []byte, err error) {
+	sort.Sort(deps)
+	b = make([]byte, 0, 50*len(*deps))
+	b = append(b, '{')
+	for _, d := range *deps {
+		b = append(b, '"')
+		b = append(b, d.ImportPath...)
+		b = append(b, `":"`...)
+		b = append(b, d.Version...)
+		b = append(b, `",`...)
+	}
+	b[len(b)-1] = '}'
+	return
+}
+
+func (deps *Dependencies) UnmarshalJSON(b []byte) (err error) {
+	m := make(map[string]string)
+	err = json.Unmarshal(b, &m)
+	if err != nil {
+		return
+	}
+	for p, v := range m {
+		*deps = append(*deps, Dependency{p, v})
+	}
+	sort.Sort(*deps)
+	return
 }
