@@ -112,8 +112,9 @@ func (spec *Spec) Check() (errors []string) {
 	licenseFound := false
 	for _, f := range spec.ExtraFiles {
 		f = strings.ToLower(f)
-		if strings.HasPrefix(f, "license") || strings.HasPrefix(f, "licence") || strings.HasPrefix(f, "copying") {
+		if strings.Contains(f, "license") || strings.Contains(f, "licence") || strings.Contains(f, "copying") {
 			licenseFound = true
+			break
 		}
 	}
 	if !licenseFound {
