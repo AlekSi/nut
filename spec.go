@@ -117,7 +117,8 @@ func (spec *Spec) Check() (errors []string) {
 		}
 	}
 	if !licenseFound {
-		errors = append(errors, "Spec should include license file in ExtraFiles.")
+		errors = append(errors, "Spec should include license file in ExtraFiles. "+
+			"See http://gonuts.io/-/doc/faq for reasoning.")
 	}
 
 	// check homepage
