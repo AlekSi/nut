@@ -52,7 +52,6 @@ func runGenerate(cmd *command) {
 	spec = new(Spec)
 	if _, err = os.Stat(SpecFileName); os.IsNotExist(err) {
 		action = "generated"
-		spec.Vendor = Config.Vendor
 	} else {
 		err = spec.ReadFile(SpecFileName)
 		fatalIfErr(err)
@@ -62,7 +61,12 @@ func runGenerate(cmd *command) {
 	pack, err := build.ImportDir(".", 0)
 	fatalIfErr(err)
 
-	// add example author
+	// set vendor
+	if spec.Vendor == "" {
+		spec.Vendor = Config.Vendor
+	}
+
+	// set author
 	if len(spec.Authors) == 0 {
 		spec.Authors = []Person{Config.Author}
 	}

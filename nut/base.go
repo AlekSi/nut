@@ -89,16 +89,15 @@ func init() {
 		Config = configFile{}
 	}
 
+	// fill config with defaults
 	if Config.Author.FullName == "" {
-		Config.Author.FullName = ExampleFullName
-	}
-	if Config.Author.Email == "" {
-		Config.Author.Email = ExampleEmail
+		Config.Author = Person{ExampleFullName, ExampleEmail}
 	}
 
 	// write config if file exists
 	if !os.IsNotExist(err) {
 		b, err = json.MarshalIndent(Config, "", "  ")
+		b = append(b, '\n')
 		if err == nil {
 			err = ioutil.WriteFile(path, b, configFilePerm)
 		}
