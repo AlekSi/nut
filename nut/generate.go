@@ -52,6 +52,7 @@ func runGenerate(cmd *command) {
 	spec = new(Spec)
 	if _, err = os.Stat(SpecFileName); os.IsNotExist(err) {
 		action = "generated"
+		spec.Vendor = Config.Vendor
 	} else {
 		err = spec.ReadFile(SpecFileName)
 		fatalIfErr(err)
@@ -63,7 +64,7 @@ func runGenerate(cmd *command) {
 
 	// add example author
 	if len(spec.Authors) == 0 {
-		spec.Authors = []Person{{FullName: ExampleFullName, Email: ExampleEmail}}
+		spec.Authors = []Person{Config.Author}
 	}
 
 	// some extra files
