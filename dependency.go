@@ -99,8 +99,13 @@ func (deps *Dependencies) UnmarshalJSON(b []byte) (err error) {
 	if err != nil {
 		return
 	}
+	var d *Dependency
 	for p, v := range m {
-		*deps = append(*deps, Dependency{p, v})
+		d, err = NewDependency(p, v)
+		if err != nil {
+			return
+		}
+		*deps = append(*deps, *d)
 	}
 	sort.Sort(*deps)
 	return
