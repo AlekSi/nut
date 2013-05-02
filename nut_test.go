@@ -40,6 +40,7 @@ func (f *N) TestNutFileReadFrom(c *C) {
 	c.Check(f.nf.FileName(), Equals, "test_nut1-0.0.1.nut")
 	c.Check(f.nf.FilePath("prefix"), Equals, filepath.FromSlash("prefix/debug/test_nut1-0.0.1.nut"))
 	c.Check(f.nf.ImportPath("prefix"), Equals, "prefix/debug/test_nut1")
+	c.Check(f.nf.Prefix("prefix/debug/test_nut1"), Equals, "prefix")
 	c.Check(f.nf.Doc, Equals, "Package test_nut1 is used to test nut.")
 	c.Check(f.nf.GoFiles, DeepEquals, []string{"test_nut1.go", fmt.Sprintf("test_nut1_%s.go", runtime.GOOS)})
 

@@ -70,6 +70,15 @@ func (nut *Nut) ImportPath(prefix string) string {
 	return fmt.Sprintf("%s/%s/%s", prefix, nut.Vendor, nut.Name)
 }
 
+// Returns prefix from canonical import path <prefix>/<vendor>/<name>, or empty string.
+func (nut *Nut) Prefix(importPath string) string {
+	suffix := fmt.Sprintf("/%s/%s", nut.Vendor, nut.Name)
+	if strings.HasSuffix(importPath, suffix) {
+		return importPath[:len(importPath)-len(suffix)]
+	}
+	return ""
+}
+
 // Read nut from directory: package from <dir> and spec from <dir>/<SpecFileName>.
 func (nut *Nut) ReadFrom(dir string) (err error) {
 	// This method is called ReadFrom to prevent code n.ReadFrom(r) from calling n.Spec.ReadFrom(r).
