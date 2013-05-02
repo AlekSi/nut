@@ -18,7 +18,7 @@ type Spec struct {
 	Authors      []Person
 	ExtraFiles   []string
 	Homepage     string
-	Dependencies Dependencies `json:",omitempty"`
+	Dependencies *Dependencies `json:",omitempty"`
 }
 
 // Describes nut author.

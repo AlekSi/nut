@@ -65,24 +65,58 @@ func (d *Dependency) Matches(prefix string, nut *Nut) bool {
 	return false
 }
 
-type Dependencies []Dependency
+type Dependencies struct {
+	d map[string]string // import path to version
+}
 
 // check interface
 var (
-	_ sort.Interface   = &Dependencies{}
 	_ json.Marshaler   = &Dependencies{}
 	_ json.Unmarshaler = &Dependencies{}
 )
 
-func (deps Dependencies) Len() int           { return len(deps) }
-func (deps Dependencies) Less(i, j int) bool { return deps[i].ImportPath < deps[j].ImportPath }
-func (deps Dependencies) Swap(i, j int)      { deps[i], deps[j] = deps[j], deps[i] }
+func NewDependencies() *Dependencies {
+	return &Dependencies{d: make(map[string]string)}
+}
+
+func (deps *Dependencies) Clear() {
+	deps.d = make(map[string]string)
+}
+
+func (deps *Dependencies) Add(d *Dependency) {
+	deps.d[d.ImportPath] = d.Version
+}
+
+func (deps *Dependencies) Get(importPath string) (dep *Dependency) {
+	v, ok := deps.d[importPath]
+	if ok {
+		dep = &Dependency{importPath, v}
+	}
+	return
+}
+
+func (deps *Dependencies) Del(d *Dependency) {
+	delete(deps.d, d.ImportPath)
+}
+
+func (deps *Dependencies) Len() int {
+	return len(deps.d)
+}
+
+func (deps *Dependencies) ImportPaths() (paths []string) {
+	paths = make([]string, 0, deps.Len())
+	for i := range deps.d {
+		paths = append(paths, i)
+	}
+	sort.Strings(paths)
+	return
+}
 
 func (deps *Dependencies) MarshalJSON() (b []byte, err error) {
-	sort.Sort(deps)
-	b = make([]byte, 0, 50*len(*deps))
+	b = make([]byte, 0, 50*deps.Len())
 	b = append(b, '{')
-	for _, d := range *deps {
+	for _, p := range deps.ImportPaths() {
+		d := deps.Get(p)
 		b = append(b, '"')
 		b = append(b, d.ImportPath...)
 		b = append(b, `":"`...)
@@ -99,14 +133,14 @@ func (deps *Dependencies) UnmarshalJSON(b []byte) (err error) {
 	if err != nil {
 		return
 	}
+	deps.Clear()
 	var d *Dependency
 	for p, v := range m {
 		d, err = NewDependency(p, v)
 		if err != nil {
 			return
 		}
-		*deps = append(*deps, *d)
+		deps.Add(d)
 	}
-	sort.Sort(*deps)
 	return
 }
