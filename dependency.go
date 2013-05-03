@@ -16,14 +16,49 @@ var DependencyRegexp = regexp.MustCompile(`^(\d+|\*).(\d+|\*).(\d+|\*)$`)
 type Dependency struct {
 	ImportPath string
 	Version    string
+	parsed     *parsedDependency
+}
+
+type parsedDependency struct {
+	majorMin, majorMax int
+	minorMin, minorMax int
+	patchMin, patchMax int
 }
 
 func NewDependency(importPath, version string) (d *Dependency, err error) {
-	d = &Dependency{importPath, version}
+	d = &Dependency{ImportPath: importPath, Version: version}
 	if d.OnNut() && !DependencyRegexp.MatchString(version) {
 		err = fmt.Errorf("Bad format for nut dependency %q.", version)
 	}
 	return
+}
+
+func (d *Dependency) parseSection(s string) (min, max int) {
+	if s == "*" {
+		return MinSectionValue, MaxSectionValue
+	}
+
+	n, err := strconv.Atoi(s)
+	if err != nil {
+		panic(fmt.Errorf("%#v: failed to parse section %q: %s", d, s, err))
+	}
+	min = n
+	max = n
+	return
+}
+
+func (d *Dependency) parse() {
+	if d.parsed == nil {
+		if !d.OnNut() {
+			panic(fmt.Errorf("Not a nut: %#v", d))
+		}
+
+		match := DependencyRegexp.FindAllStringSubmatch(d.Version, -1)
+		d.parsed = &parsedDependency{}
+		d.parsed.majorMin, d.parsed.majorMax = d.parseSection(match[0][1])
+		d.parsed.minorMin, d.parsed.minorMax = d.parseSection(match[0][2])
+		d.parsed.patchMin, d.parsed.patchMax = d.parseSection(match[0][3])
+	}
 }
 
 func (d Dependency) String() string {
@@ -34,35 +69,61 @@ func (d *Dependency) OnNut() bool {
 	return !strings.Contains(d.Version, ":")
 }
 
+func (d *Dependency) MajorMin() int {
+	d.parse()
+	return d.parsed.majorMin
+}
+
+func (d *Dependency) MajorMax() int {
+	d.parse()
+	return d.parsed.majorMax
+}
+
+func (d *Dependency) MinorMin() int {
+	d.parse()
+	return d.parsed.minorMin
+}
+
+func (d *Dependency) MinorMax() int {
+	d.parse()
+	return d.parsed.minorMax
+}
+
+func (d *Dependency) PatchMin() int {
+	d.parse()
+	return d.parsed.patchMin
+}
+
+func (d *Dependency) PatchMax() int {
+	d.parse()
+	return d.parsed.patchMax
+}
+
 func (d *Dependency) Matches(prefix string, nut *Nut) bool {
 	if !d.OnNut() {
 		panic(fmt.Errorf("Not a nut: (%#v).Matches(%#v)", d, nut))
 	}
+
+	// parse early to check for panic
+	d.parse()
 
 	// check import path
 	if d.ImportPath != nut.ImportPath(prefix) {
 		return false
 	}
 
-	// check exact matching and wildcards
-	match := DependencyRegexp.FindAllStringSubmatch(d.Version, -1)
-	if match != nil {
-		major_s := match[0][1]
-		minor_s := match[0][2]
-		patch_s := match[0][3]
-
-		major, _ := strconv.Atoi(major_s)
-		minor, _ := strconv.Atoi(minor_s)
-		patch, _ := strconv.Atoi(patch_s)
-
-		if (major_s == "*" || major == nut.Version.Major) &&
-			(minor_s == "*" || minor == nut.Version.Minor) &&
-			(patch_s == "*" || patch == nut.Version.Patch) {
-			return true
-		}
+	// check version
+	if d.MajorMin() > nut.Version.Major || d.MajorMax() < nut.Version.Major {
+		return false
+	}
+	if d.MinorMin() > nut.Version.Minor || d.MinorMax() < nut.Version.Minor {
+		return false
+	}
+	if d.PatchMin() > nut.Version.Patch || d.PatchMax() < nut.Version.Patch {
+		return false
 	}
 
-	return false
+	return true
 }
 
 type Dependencies struct {
@@ -83,6 +144,7 @@ func (deps *Dependencies) Clear() {
 	deps.d = make(map[string]string)
 }
 
+// TODO not replace, make narrow
 func (deps *Dependencies) Add(d *Dependency) {
 	deps.d[d.ImportPath] = d.Version
 }
@@ -90,7 +152,7 @@ func (deps *Dependencies) Add(d *Dependency) {
 func (deps *Dependencies) Get(importPath string) (dep *Dependency) {
 	v, ok := deps.d[importPath]
 	if ok {
-		dep = &Dependency{importPath, v}
+		dep = &Dependency{ImportPath: importPath, Version: v}
 	}
 	return
 }
@@ -133,7 +195,7 @@ func (deps *Dependencies) UnmarshalJSON(b []byte) (err error) {
 	if err != nil {
 		return
 	}
-	deps.Clear()
+	deps.Clear() // also make
 	var d *Dependency
 	for p, v := range m {
 		d, err = NewDependency(p, v)

@@ -10,6 +10,14 @@ import (
 // Current format for nut version.
 var VersionRegexp = regexp.MustCompile(`^(\d+).(\d+).(\d+)$`)
 
+const (
+	// Minimum value for each section (major, minor, patch).
+	MinSectionValue = int(0)
+
+	// Maximum value for each section (major, minor, patch).
+	MaxSectionValue = int(1<<31 - 1)
+)
+
 // Describes nut version. See http://gonuts.io/-/doc/versioning for explanation of version specification.
 type Version struct {
 	Major int
