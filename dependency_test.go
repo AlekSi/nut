@@ -25,12 +25,12 @@ func (d *D) SetUpTest(c *C) {
 }
 
 func (d *D) TestNew(c *C) {
-	for _, v := range []string{"0.0.1", "*.*.*", "git:e1a6adc"} {
+	for _, v := range []string{"0.0.1", "*.*.*", "1.>=5.*", "git:e1a6adc"} {
 		_, err := NewDependency("gonuts.io/debug/crazy", v)
 		c.Check(err, IsNil)
 	}
 
-	for _, v := range []string{"0.1", "*"} {
+	for _, v := range []string{"0.1", "*", "1.2.>=*"} {
 		_, err := NewDependency("gonuts.io/debug/crazy", v)
 		c.Check(err, Not(IsNil))
 	}
@@ -62,6 +62,20 @@ func (d *D) TestMatchesWildcard(c *C) {
 	}
 
 	for _, v := range []string{"9.*.*", "*.9.*", "*.*.9"} {
+		dep, err := NewDependency("gonuts.io/debug/test_nut1", v)
+		c.Check(err, IsNil)
+		c.Check(dep.Matches("gonuts.io", d.nut), Equals, false, Commentf("Dependency %q should not match %v", dep, d.nut))
+	}
+}
+
+func (d *D) TestMatchesMoreEqual(c *C) {
+	for _, v := range []string{"0.0.>=0", "0.0.>=1", ">=0.>=0.>=0"} {
+		dep, err := NewDependency("gonuts.io/debug/test_nut1", v)
+		c.Check(err, IsNil)
+		c.Check(dep.Matches("gonuts.io", d.nut), Equals, true, Commentf("Dependency %q should match %v", dep, d.nut))
+	}
+
+	for _, v := range []string{">=9.0.1", "0.>=9.1", "0.0.>=9"} {
 		dep, err := NewDependency("gonuts.io/debug/test_nut1", v)
 		c.Check(err, IsNil)
 		c.Check(dep.Matches("gonuts.io", d.nut), Equals, false, Commentf("Dependency %q should not match %v", dep, d.nut))

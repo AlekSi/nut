@@ -10,7 +10,7 @@ import (
 )
 
 // Current format.
-var DependencyRegexp = regexp.MustCompile(`^(\d+|\*).(\d+|\*).(\d+|\*)$`)
+var DependencyRegexp = regexp.MustCompile(`^((?:>=)?\d+|\*).((?:>=)?\d+|\*).((?:>=)?\d+|\*)$`)
 
 // Describes dependency information.
 type Dependency struct {
@@ -38,12 +38,22 @@ func (d *Dependency) parseSection(s string) (min, max int) {
 		return MinSectionValue, MaxSectionValue
 	}
 
+	var moreEqual bool
+	if strings.HasPrefix(s, ">=") {
+		moreEqual = true
+		s = s[2:]
+	}
+
 	n, err := strconv.Atoi(s)
 	if err != nil {
 		panic(fmt.Errorf("%#v: failed to parse section %q: %s", d, s, err))
 	}
 	min = n
 	max = n
+
+	if moreEqual {
+		max = MaxSectionValue
+	}
 	return
 }
 
