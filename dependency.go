@@ -9,6 +9,62 @@ import (
 	"strings"
 )
 
+func minSection(ints ...int) (min int) {
+	min = MaxSectionValue
+	for _, i := range ints {
+		if min > i {
+			min = i
+		}
+	}
+	return
+}
+
+func maxSection(ints ...int) (max int) {
+	max = MinSectionValue
+	for _, i := range ints {
+		if max < i {
+			max = i
+		}
+	}
+	return
+}
+
+type parsedDependency struct {
+	majorMin, majorMax int
+	minorMin, minorMax int
+	patchMin, patchMax int
+}
+
+func (pd *parsedDependency) valid() bool {
+	return pd.majorMin <= pd.majorMax &&
+		pd.minorMin <= pd.minorMax &&
+		pd.patchMin <= pd.patchMax
+}
+
+func (pd *parsedDependency) String() (v string) {
+	if !pd.valid() {
+		panic(fmt.Errorf("%#v is not valid", pd))
+	}
+
+	s := make([]string, 3)
+	for i, mm := range [][2]int{{pd.majorMin, pd.majorMax}, {pd.minorMin, pd.minorMax}, {pd.patchMin, pd.patchMax}} {
+		min, max := mm[0], mm[1]
+		if min == MinSectionValue && max == MaxSectionValue {
+			s[i] = "*"
+		} else if min == max {
+			s[i] = strconv.Itoa(min)
+		} else if max == MaxSectionValue {
+			s[i] = ">=" + strconv.Itoa(min)
+		}
+	}
+
+	v = strings.Join(s, ".")
+	if !DependencyRegexp.MatchString(v) { // sanity check
+		panic(fmt.Errorf("%s not matches %s", v, DependencyRegexp))
+	}
+	return
+}
+
 // Current format.
 var DependencyRegexp = regexp.MustCompile(`^((?:>=)?\d+|\*).((?:>=)?\d+|\*).((?:>=)?\d+|\*)$`)
 
@@ -17,12 +73,6 @@ type Dependency struct {
 	ImportPath string
 	Version    string
 	parsed     *parsedDependency
-}
-
-type parsedDependency struct {
-	majorMin, majorMax int
-	minorMin, minorMax int
-	patchMin, patchMax int
 }
 
 func NewDependency(importPath, version string) (d *Dependency, err error) {
@@ -136,47 +186,70 @@ func (d *Dependency) Matches(prefix string, nut *Nut) bool {
 	return true
 }
 
+type AddDependencyError struct {
+	ex, add *Dependency
+}
+
+func (e *AddDependencyError) Error() string {
+	return fmt.Sprintf("Can't add %s to existing dependecy %s", e.add, e.ex)
+}
+
 type Dependencies struct {
-	d map[string]string // import path to version
+	d map[string]Dependency // import path to dependency
 }
 
 // check interface
 var (
+	_ error            = &AddDependencyError{}
 	_ json.Marshaler   = &Dependencies{}
 	_ json.Unmarshaler = &Dependencies{}
 )
 
-func NewDependencies() *Dependencies {
-	return &Dependencies{d: make(map[string]string)}
+func NewDependencies() (deps *Dependencies) {
+	deps = new(Dependencies)
+	deps.Clear()
+	return
 }
 
 func (deps *Dependencies) Clear() {
-	deps.d = make(map[string]string)
+	deps.d = make(map[string]Dependency)
 }
 
-// TODO not replace, make narrow
-func (deps *Dependencies) Add(d *Dependency) {
-	deps.d[d.ImportPath] = d.Version
+func (deps *Dependencies) Add(d *Dependency) (err error) {
+	e := deps.Get(d.ImportPath)
+	if e == nil {
+		deps.d[d.ImportPath] = *d
+		return
+	}
+
+	e.parse()
+	e.parsed.majorMin = maxSection(e.parsed.majorMin, d.MajorMin())
+	e.parsed.majorMax = minSection(e.parsed.majorMax, d.MajorMax())
+	e.parsed.minorMin = maxSection(e.parsed.minorMin, d.MinorMin())
+	e.parsed.minorMax = minSection(e.parsed.minorMax, d.MinorMax())
+	e.parsed.patchMin = maxSection(e.parsed.patchMin, d.PatchMin())
+	e.parsed.patchMax = minSection(e.parsed.patchMax, d.PatchMax())
+
+	if !e.parsed.valid() {
+		err = &AddDependencyError{ex: deps.Get(d.ImportPath), add: d}
+		return
+	}
+
+	e.Version = e.parsed.String()
+	deps.d[d.ImportPath] = *e
+	return
 }
 
 func (deps *Dependencies) Get(importPath string) (dep *Dependency) {
-	v, ok := deps.d[importPath]
+	d, ok := deps.d[importPath]
 	if ok {
-		dep = &Dependency{ImportPath: importPath, Version: v}
+		dep = &d
 	}
 	return
 }
 
-func (deps *Dependencies) Del(d *Dependency) {
-	delete(deps.d, d.ImportPath)
-}
-
-func (deps *Dependencies) Len() int {
-	return len(deps.d)
-}
-
 func (deps *Dependencies) ImportPaths() (paths []string) {
-	paths = make([]string, 0, deps.Len())
+	paths = make([]string, 0, len(deps.d))
 	for i := range deps.d {
 		paths = append(paths, i)
 	}
@@ -185,7 +258,7 @@ func (deps *Dependencies) ImportPaths() (paths []string) {
 }
 
 func (deps *Dependencies) MarshalJSON() (b []byte, err error) {
-	b = make([]byte, 0, 50*deps.Len())
+	b = make([]byte, 0, 50*len(deps.d))
 	b = append(b, '{')
 	for _, p := range deps.ImportPaths() {
 		d := deps.Get(p)
@@ -212,7 +285,10 @@ func (deps *Dependencies) UnmarshalJSON(b []byte) (err error) {
 		if err != nil {
 			return
 		}
-		deps.Add(d)
+		err = deps.Add(d)
+		if err != nil {
+			return
+		}
 	}
 	return
 }
