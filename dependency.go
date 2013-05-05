@@ -59,14 +59,16 @@ func (pd *parsedDependency) String() (v string) {
 	}
 
 	v = strings.Join(s, ".")
-	if !DependencyRegexp.MatchString(v) { // sanity check
-		panic(fmt.Errorf("%s not matches %s", v, DependencyRegexp))
+	if !NutDependencyRegexp.MatchString(v) { // sanity check
+		panic(fmt.Errorf("%s not matches %s", v, NutDependencyRegexp))
 	}
 	return
 }
 
-// Current format.
-var DependencyRegexp = regexp.MustCompile(`^((?:>=)?\d+|\*).((?:>=)?\d+|\*).((?:>=)?\d+|\*)$`)
+var (
+	// Current format for nut dependency.
+	NutDependencyRegexp = regexp.MustCompile(`^((?:>=)?\d+|\*)\.((?:>=)?\d+|\*)\.((?:>=)?\d+|\*)$`)
+)
 
 // Describes dependency information.
 type Dependency struct {
@@ -77,7 +79,7 @@ type Dependency struct {
 
 func NewDependency(importPath, version string) (d *Dependency, err error) {
 	d = &Dependency{ImportPath: importPath, Version: version}
-	if d.OnNut() && !DependencyRegexp.MatchString(version) {
+	if d.OnNut() && !NutDependencyRegexp.MatchString(version) {
 		err = fmt.Errorf("Bad format for nut dependency %q.", version)
 	}
 	return
@@ -113,7 +115,7 @@ func (d *Dependency) parse() {
 			panic(fmt.Errorf("Not a nut: %#v", d))
 		}
 
-		match := DependencyRegexp.FindAllStringSubmatch(d.Version, -1)
+		match := NutDependencyRegexp.FindAllStringSubmatch(d.Version, -1)
 		d.parsed = &parsedDependency{}
 		d.parsed.majorMin, d.parsed.majorMax = d.parseSection(match[0][1])
 		d.parsed.minorMin, d.parsed.minorMax = d.parseSection(match[0][2])
