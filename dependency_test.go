@@ -30,7 +30,7 @@ func (d *D) TestNew(c *C) {
 		c.Check(err, IsNil)
 	}
 
-	for _, v := range []string{"0.1", "*", "1-2-3", "1.2.>=*"} {
+	for _, v := range []string{"0.1", "*", "1-2-3", "1.2.>=*", "cvs:6"} {
 		_, err := NewDependency("gonuts.io/debug/crazy", v)
 		c.Check(err, Not(IsNil))
 	}

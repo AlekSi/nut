@@ -67,7 +67,9 @@ func (pd *parsedDependency) String() (v string) {
 
 var (
 	// Current format for nut dependency.
-	NutDependencyRegexp = regexp.MustCompile(`^((?:>=)?\d+|\*)\.((?:>=)?\d+|\*)\.((?:>=)?\d+|\*)$`)
+	NutDependencyRegexp      = regexp.MustCompile(`^((?:>=)?\d+|\*)\.((?:>=)?\d+|\*)\.((?:>=)?\d+|\*)$`)
+	NutFixedDependencyRegexp = regexp.MustCompile(`^(\d+)\.(\d+)\.(\d+)$`)
+	VcsDependencyRegexp      = regexp.MustCompile(`^(bzr|git|hg|svn):(\S+)$`)
 )
 
 // Describes dependency information.
@@ -79,8 +81,8 @@ type Dependency struct {
 
 func NewDependency(importPath, version string) (d *Dependency, err error) {
 	d = &Dependency{ImportPath: importPath, Version: version}
-	if d.OnNut() && !NutDependencyRegexp.MatchString(version) {
-		err = fmt.Errorf("Bad format for nut dependency %q.", version)
+	if !d.OnNut() && !d.OnVcs() {
+		err = fmt.Errorf("Bad format for dependency %q.", version)
 	}
 	return
 }
@@ -128,7 +130,11 @@ func (d Dependency) String() string {
 }
 
 func (d *Dependency) OnNut() bool {
-	return !strings.Contains(d.Version, ":")
+	return NutDependencyRegexp.MatchString(d.Version)
+}
+
+func (d *Dependency) OnVcs() bool {
+	return VcsDependencyRegexp.MatchString(d.Version)
 }
 
 func (d *Dependency) MajorMin() int {
