@@ -29,25 +29,25 @@ func maxSection(ints ...int) (max int) {
 	return
 }
 
-type parsedDependency struct {
+type parsedNutDependency struct {
 	majorMin, majorMax int
 	minorMin, minorMax int
 	patchMin, patchMax int
 }
 
-func (pd *parsedDependency) valid() bool {
-	return pd.majorMin <= pd.majorMax &&
-		pd.minorMin <= pd.minorMax &&
-		pd.patchMin <= pd.patchMax
+func (p *parsedNutDependency) valid() bool {
+	return p.majorMin <= p.majorMax &&
+		p.minorMin <= p.minorMax &&
+		p.patchMin <= p.patchMax
 }
 
-func (pd *parsedDependency) String() (v string) {
-	if !pd.valid() {
-		panic(fmt.Errorf("%#v is not valid", pd))
+func (p *parsedNutDependency) String() (v string) {
+	if !p.valid() {
+		panic(fmt.Errorf("%#v is not valid", p))
 	}
 
 	s := make([]string, 3)
-	for i, mm := range [][2]int{{pd.majorMin, pd.majorMax}, {pd.minorMin, pd.minorMax}, {pd.patchMin, pd.patchMax}} {
+	for i, mm := range [][2]int{{p.majorMin, p.majorMax}, {p.minorMin, p.minorMax}, {p.patchMin, p.patchMax}} {
 		min, max := mm[0], mm[1]
 		if min == MinSectionValue && max == MaxSectionValue {
 			s[i] = "*"
@@ -67,16 +67,20 @@ func (pd *parsedDependency) String() (v string) {
 
 var (
 	// Current format for nut dependency.
-	NutDependencyRegexp      = regexp.MustCompile(`^((?:>=)?\d+|\*)\.((?:>=)?\d+|\*)\.((?:>=)?\d+|\*)$`)
+	NutDependencyRegexp = regexp.MustCompile(`^((?:>=)?\d+|\*)\.((?:>=)?\d+|\*)\.((?:>=)?\d+|\*)$`)
+
+	// Current format for fixed nut dependency.
 	NutFixedDependencyRegexp = regexp.MustCompile(`^(\d+)\.(\d+)\.(\d+)$`)
-	VcsDependencyRegexp      = regexp.MustCompile(`^(bzr|git|hg|svn):(\S+)$`)
+
+	// Current format for (fixed) VCS dependency.
+	VcsDependencyRegexp = regexp.MustCompile(`^(bzr|git|hg|svn):(\S+)$`)
 )
 
 // Describes dependency information.
 type Dependency struct {
 	ImportPath string
 	Version    string
-	parsed     *parsedDependency
+	parsed     *parsedNutDependency
 }
 
 func NewDependency(importPath, version string) (d *Dependency, err error) {
@@ -118,7 +122,7 @@ func (d *Dependency) parse() {
 		}
 
 		match := NutDependencyRegexp.FindAllStringSubmatch(d.Version, -1)
-		d.parsed = &parsedDependency{}
+		d.parsed = &parsedNutDependency{}
 		d.parsed.majorMin, d.parsed.majorMax = d.parseSection(match[0][1])
 		d.parsed.minorMin, d.parsed.minorMax = d.parseSection(match[0][2])
 		d.parsed.patchMin, d.parsed.patchMax = d.parseSection(match[0][3])
@@ -135,6 +139,10 @@ func (d *Dependency) OnNut() bool {
 
 func (d *Dependency) OnVcs() bool {
 	return VcsDependencyRegexp.MatchString(d.Version)
+}
+
+func (d *Dependency) IsStrict() bool {
+	return NutFixedDependencyRegexp.MatchString(d.Version) || VcsDependencyRegexp.MatchString(d.Version)
 }
 
 func (d *Dependency) MajorMin() int {
