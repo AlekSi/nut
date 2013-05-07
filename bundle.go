@@ -8,7 +8,7 @@ import (
 )
 
 type Bundle struct {
-	Dependencies *Dependencies
+	Dependencies Dependencies
 }
 
 const (

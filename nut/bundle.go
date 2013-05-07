@@ -1,9 +1,7 @@
 package main
 
 import (
-	"encoding/json"
 	"go/build"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -56,7 +54,7 @@ func runBundle(cmd *command) {
 	})
 	fatalIfErr(err)
 
-	bundle := Bundle{Dependencies: NewDependencies()}
+	bundle := Bundle{}
 	imported := make(map[string]bool)
 	var path string
 	for len(importPaths) > 0 {
@@ -78,7 +76,6 @@ func runBundle(cmd *command) {
 		importPaths = append(importPaths, pack.Imports...)
 	}
 
-	b, err := json.MarshalIndent(bundle, "", "  ")
+	_, err = bundle.WriteTo(os.Stderr)
 	fatalIfErr(err)
-	log.Printf("%s", string(b))
 }

@@ -6,13 +6,13 @@ import (
 )
 
 type Ds struct {
-	deps *Dependencies
+	deps Dependencies
 }
 
 var _ = Suite(&Ds{})
 
 func (ds *Ds) SetUpTest(c *C) {
-	ds.deps = NewDependencies()
+	ds.deps.Clear()
 }
 
 func (ds *Ds) TestDependenciesAdd(c *C) {

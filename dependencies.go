@@ -31,12 +31,6 @@ var (
 	_ json.Unmarshaler = &Dependencies{}
 )
 
-func NewDependencies() (deps *Dependencies) {
-	deps = new(Dependencies)
-	deps.Clear()
-	return
-}
-
 func (deps Dependencies) String() string {
 	paths := deps.ImportPaths()
 	s := make([]string, len(paths))
@@ -76,6 +70,9 @@ func (deps *Dependencies) Add(d *Dependency) (err error) {
 }
 
 func (deps *Dependencies) Get(importPath string) (dep *Dependency) {
+	if deps.d == nil {
+		deps.Clear()
+	}
 	d, ok := deps.d[importPath]
 	if ok {
 		dep = &d
