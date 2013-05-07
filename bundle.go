@@ -49,6 +49,18 @@ func (bundle *Bundle) ReadFrom(r io.Reader) (n int64, err error) {
 	return
 }
 
+// Writes bundle to specified file.
+func (bundle *Bundle) WriteFile(fileName string) (err error) {
+	f, err := os.Create(fileName)
+	if err != nil {
+		return
+	}
+	defer f.Close()
+
+	_, err = bundle.WriteTo(f)
+	return
+}
+
 // WriteTo writes bundle to w.
 // The return value n is the number of bytes written.
 // Any error encountered during the write is also returned.
