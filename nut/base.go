@@ -79,18 +79,16 @@ func init() {
 	}
 
 	// load config if file exists
-	Config = configFile{}
 	path := filepath.Join(u.HomeDir, configFileName)
 	b, err := ioutil.ReadFile(path)
 	if err == nil {
 		err = json.Unmarshal(b, &Config)
 	}
 	if err != nil && !os.IsNotExist(err) {
-		//if config file was empty, don't print warning from json.Unmarshal and silently create example config
-		//if .nut.json format is broken, just exit with error message
+		// if config file was empty, don't print warning from json.Unmarshal and silently create example config
+		// if .nut.json format is broken, just exit with error message
 		if len(b) > 0 {
-			log.Fatalf("Fatal error: Can't load config from %s: %s\n", path, err)
-			return
+			log.Fatalf("Fatal error: Can't load config from %s: %s", path, err)
 		}
 	}
 
