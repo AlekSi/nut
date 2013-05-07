@@ -82,12 +82,7 @@ func (nut *Nut) ReadFrom(dir string) (err error) {
 	nut.Package = *pack
 
 	// read spec
-	f, err := os.Open(filepath.Join(dir, SpecFileName))
-	if err != nil {
-		return
-	}
-	defer f.Close()
-	_, err = nut.Spec.ReadFrom(f)
+	err = nut.Spec.ReadFile(filepath.Join(dir, SpecFileName))
 	return
 }
 
