@@ -10,10 +10,6 @@ import (
 	. "github.com/AlekSi/nut"
 )
 
-const (
-	specFilePerm = 0644
-)
-
 var (
 	cmdGenerate = &command{
 		Run:       runGenerate,
@@ -87,10 +83,7 @@ func runGenerate(cmd *command) {
 	}
 
 	// write spec
-	f, err := os.OpenFile(SpecFileName, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, specFilePerm)
-	fatalIfErr(err)
-	defer f.Close()
-	_, err = spec.WriteTo(f)
+	err = spec.WriteFile(SpecFileName)
 	fatalIfErr(err)
 
 	if generateV {

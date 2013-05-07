@@ -68,6 +68,18 @@ func (spec *Spec) ReadFrom(r io.Reader) (n int64, err error) {
 	return
 }
 
+// Writes spec to specified file.
+func (spec *Spec) WriteFile(fileName string) (err error) {
+	f, err := os.Create(fileName)
+	if err != nil {
+		return
+	}
+	defer f.Close()
+
+	_, err = spec.WriteTo(f)
+	return
+}
+
 // WriteTo writes spec to w.
 // The return value n is the number of bytes written.
 // Any error encountered during the write is also returned.
