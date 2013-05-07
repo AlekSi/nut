@@ -83,6 +83,11 @@ type Dependency struct {
 	parsed     *parsedNutDependency
 }
 
+// check interface
+var (
+	_ fmt.Stringer = &Dependency{}
+)
+
 func NewDependency(importPath, version string) (d *Dependency, err error) {
 	d = &Dependency{ImportPath: importPath, Version: version}
 	if !d.OnNut() && !d.OnVcs() {
@@ -206,6 +211,11 @@ type AddDependencyError struct {
 	ex, add *Dependency
 }
 
+// check interface
+var (
+	_ error = &AddDependencyError{}
+)
+
 func (e *AddDependencyError) Error() string {
 	return fmt.Sprintf("Can't add %s to existing dependecy %s", e.add, e.ex)
 }
@@ -214,9 +224,9 @@ type Dependencies struct {
 	d map[string]Dependency // import path to dependency
 }
 
-// check interface
+// check interfaces
 var (
-	_ error            = &AddDependencyError{}
+	_ fmt.Stringer     = &Dependencies{}
 	_ json.Marshaler   = &Dependencies{}
 	_ json.Unmarshaler = &Dependencies{}
 )
@@ -225,6 +235,15 @@ func NewDependencies() (deps *Dependencies) {
 	deps = new(Dependencies)
 	deps.Clear()
 	return
+}
+
+func (deps *Dependencies) String() string {
+	paths := deps.ImportPaths()
+	s := make([]string, len(paths))
+	for i, path := range paths {
+		s[i] = deps.Get(path).String()
+	}
+	return strings.Join(s, ", ")
 }
 
 func (deps *Dependencies) Clear() {
