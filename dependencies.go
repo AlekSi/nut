@@ -95,15 +95,19 @@ func (deps *Dependencies) ImportPaths() (paths []string) {
 func (deps *Dependencies) MarshalJSON() (b []byte, err error) {
 	b = make([]byte, 0, 50*len(deps.d))
 	b = append(b, '{')
-	for _, p := range deps.ImportPaths() {
+	paths := deps.ImportPaths()
+	for i, p := range paths {
+		if i > 0 {
+			b = append(b, ',')
+		}
 		d := deps.Get(p)
 		b = append(b, '"')
 		b = append(b, d.ImportPath...)
 		b = append(b, `":"`...)
 		b = append(b, d.Version...)
-		b = append(b, `",`...)
+		b = append(b, '"')
 	}
-	b[len(b)-1] = '}'
+	b = append(b, '}')
 	return
 }
 
