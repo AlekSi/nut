@@ -88,7 +88,7 @@ func init() {
 		// if config file was empty, don't print warning from json.Unmarshal and silently create example config
 		// if .nut.json format is broken, just exit with error message
 		if len(b) > 0 {
-			log.Fatalf("Fatal error: Can't load config from %s: %s", path, err)
+			log.Fatalf("Can't load config from %s: %s", path, err)
 		}
 	}
 
@@ -105,7 +105,7 @@ func init() {
 			err = ioutil.WriteFile(path, b, configFilePerm)
 		}
 		if err != nil {
-			log.Printf("Warning: Can't write config to %s: %s\n", path, err)
+			log.Printf("Warning: Can't write config to %s: %s", path, err)
 		}
 	}
 
