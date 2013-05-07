@@ -93,21 +93,3 @@ func (d *D) TestMatchesMoreEqual(c *C) {
 		c.Check(dep.Matches("gonuts.io", d.nut), Equals, false, Commentf("Dependency %q should not match %v", dep, d.nut))
 	}
 }
-
-func (d *D) TestDependenciesAdd(c *C) {
-	deps := NewDependencies()
-	for _, v := range []string{"1.>=1.*", "1.>=2.*", "1.*.*"} {
-		dep, err := NewDependency("gonuts.io/debug/crazy", v)
-		c.Check(err, IsNil)
-		err = deps.Add(dep)
-		c.Check(err, IsNil)
-	}
-	c.Check(deps.Get("gonuts.io/debug/crazy").String(), Equals, "gonuts.io/debug/crazy (1.>=2.*)")
-
-	dep, err := NewDependency("gonuts.io/debug/crazy", "2.*.*")
-	c.Check(err, IsNil)
-	err = deps.Add(dep)
-	c.Check(err, FitsTypeOf, &AddDependencyError{})
-	c.Check(err.Error(), Equals, "Can't add gonuts.io/debug/crazy (2.*.*) to existing dependecy gonuts.io/debug/crazy (1.>=2.*)")
-	c.Check(deps.Get("gonuts.io/debug/crazy").String(), Equals, "gonuts.io/debug/crazy (1.>=2.*)")
-}
