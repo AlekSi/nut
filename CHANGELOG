@@ -1,3 +1,8 @@
+2013-xx-yy: 0.4.dev
+  + Store vendor and author in ~/.nut.json, use them in `nut generate`.
+  * Abort if ~/.nut.json is not empty and has invalid format.
+  * Documentation improvements.
+
 2013-03-18: 0.3.0
   + Add vendors.
   * `nut install` now installs into <prefix>/<vendor>/<name> (omits version component).

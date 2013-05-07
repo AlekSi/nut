@@ -51,7 +51,7 @@ func (c *command) Usage() {
 var commands = []*command{cmdCheck, cmdGenerate, cmdGet, cmdInstall, cmdPack, cmdPublish, cmdUnpack}
 
 var usageTemplate = template.Must(template.New("top").Parse(`Nut is a tool for managing versioned Go source code packages.
-Version 0.3.dev.
+Version 0.4.dev.
 
 Usage:
 
