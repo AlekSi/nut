@@ -26,7 +26,7 @@ type Dependencies struct {
 
 // check interfaces
 var (
-	_ fmt.Stringer     = &Dependencies{}
+	_ fmt.Stringer     = Dependencies{}
 	_ json.Marshaler   = &Dependencies{}
 	_ json.Unmarshaler = &Dependencies{}
 )
@@ -37,7 +37,7 @@ func NewDependencies() (deps *Dependencies) {
 	return
 }
 
-func (deps *Dependencies) String() string {
+func (deps Dependencies) String() string {
 	paths := deps.ImportPaths()
 	s := make([]string, len(paths))
 	for i, path := range paths {
