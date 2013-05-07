@@ -85,8 +85,11 @@ func init() {
 		err = json.Unmarshal(b, &Config)
 	}
 	if err != nil && !os.IsNotExist(err) {
-		log.Printf("Warning: Can't load config from %s: %s\n", path, err)
-		Config = configFile{}
+		// if config file was empty, don't print warning from json.Unmarshal and silently create example config
+		// if .nut.json format is broken, just exit with error message
+		if len(b) > 0 {
+			log.Fatalf("Fatal error: Can't load config from %s: %s", path, err)
+		}
 	}
 
 	// fill config with defaults
