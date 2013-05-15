@@ -7,37 +7,37 @@ import (
 	"os"
 )
 
-type Bundle struct {
+type DependenciesFile struct {
 	Dependencies Dependencies
 }
 
 const (
-	BundleFileName = "nut-bundle.json"
+	DependenciesFileName = "dependencies.json"
 )
 
-// check interface
+// check interfaces
 var (
-	_ io.ReaderFrom = &Bundle{}
-	_ io.WriterTo   = &Bundle{}
+	_ io.ReaderFrom = &DependenciesFile{}
+	_ io.WriterTo   = &DependenciesFile{}
 )
 
-// Reads bundle from specified file.
-func (bundle *Bundle) ReadFile(fileName string) (err error) {
+// Reads dependencies from specified file.
+func (deps *DependenciesFile) ReadFile(fileName string) (err error) {
 	f, err := os.Open(fileName)
 	if err != nil {
 		return
 	}
 	defer f.Close()
 
-	_, err = bundle.ReadFrom(f)
+	_, err = deps.ReadFrom(f)
 	return
 }
 
-// ReadFrom reads bundle from r until EOF.
+// ReadFrom reads dependencies from r until EOF.
 // The return value n is the number of bytes read.
 // Any error except io.EOF encountered during the read is also returned.
 // Implements io.ReaderFrom.
-func (bundle *Bundle) ReadFrom(r io.Reader) (n int64, err error) {
+func (deps *DependenciesFile) ReadFrom(r io.Reader) (n int64, err error) {
 	var b []byte
 	b, err = ioutil.ReadAll(r)
 	n = int64(len(b))
@@ -45,29 +45,29 @@ func (bundle *Bundle) ReadFrom(r io.Reader) (n int64, err error) {
 		return
 	}
 
-	err = json.Unmarshal(b, bundle)
+	err = json.Unmarshal(b, deps)
 	return
 }
 
-// Writes bundle to specified file.
-func (bundle *Bundle) WriteFile(fileName string) (err error) {
+// Writes dependencies to specified file.
+func (deps *DependenciesFile) WriteFile(fileName string) (err error) {
 	f, err := os.Create(fileName)
 	if err != nil {
 		return
 	}
 	defer f.Close()
 
-	_, err = bundle.WriteTo(f)
+	_, err = deps.WriteTo(f)
 	return
 }
 
-// WriteTo writes bundle to w.
+// WriteTo writes dependencies to w.
 // The return value n is the number of bytes written.
 // Any error encountered during the write is also returned.
 // Implements io.WriterTo.
-func (bundle *Bundle) WriteTo(w io.Writer) (n int64, err error) {
+func (deps *DependenciesFile) WriteTo(w io.Writer) (n int64, err error) {
 	var b []byte
-	b, err = json.MarshalIndent(bundle, "", "  ")
+	b, err = json.MarshalIndent(deps, "", "  ")
 	if err != nil {
 		return
 	}

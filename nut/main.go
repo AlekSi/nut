@@ -48,7 +48,16 @@ func (c *command) Usage() {
 
 // commands lists the available commands.
 // The order here is the order in which they are printed by 'nut help'.
-var commands = []*command{cmdBundle, cmdCheck, cmdGenerate, cmdGet, cmdInstall, cmdPack, cmdPublish, cmdUnpack}
+var commands = []*command{
+	cmdCheck,
+	cmdGenerate,
+	cmdGet,
+	cmdInstall,
+	cmdLock,
+	cmdPack,
+	cmdPublish,
+	cmdUnpack,
+}
 
 var usageTemplate = template.Must(template.New("top").Parse(`Nut is a tool for managing versioned Go source code packages.
 Version 0.4.dev.

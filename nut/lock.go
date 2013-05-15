@@ -10,23 +10,23 @@ import (
 )
 
 var (
-	cmdBundle = &command{
-		Run:       runBundle,
-		UsageLine: "bundle",
-		Short:     "bundle",
+	cmdLock = &command{
+		Run:       runLock,
+		UsageLine: "lock",
+		Short:     "lock",
 	}
 )
 
 func init() {
-	cmdBundle.Long = `
-Generates or updates bundle nut-bundle.json in current directory.
+	cmdLock.Long = `
+Generates or updates dependencies.json in current directory.
 
 Examples:
-    nut bundle
+    nut lock
 `
 }
 
-func runBundle(cmd *command) {
+func runLock(cmd *command) {
 	dir, err := os.Getwd()
 	fatalIfErr(err)
 
@@ -54,7 +54,7 @@ func runBundle(cmd *command) {
 	})
 	fatalIfErr(err)
 
-	bundle := Bundle{}
+	deps := DependenciesFile{}
 	imported := make(map[string]bool)
 	var path string
 	for len(importPaths) > 0 {
@@ -76,12 +76,12 @@ func runBundle(cmd *command) {
 		}
 		dep, err := NewDependency(pack.ImportPath, version)
 		fatalIfErr(err)
-		err = bundle.Dependencies.Add(dep)
+		err = deps.Dependencies.Add(dep)
 		fatalIfErr(err)
 
 		importPaths = append(importPaths, pack.Imports...)
 	}
 
-	err = bundle.WriteFile(BundleFileName)
+	err = deps.WriteFile(DependenciesFileName)
 	fatalIfErr(err)
 }
