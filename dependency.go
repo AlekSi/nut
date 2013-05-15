@@ -33,6 +33,11 @@ type parsedNutDependency struct {
 	patchMin, patchMax int
 }
 
+// check interface
+var (
+	_ fmt.Stringer = &parsedNutDependency{}
+)
+
 func (p *parsedNutDependency) valid() bool {
 	return p.majorMin <= p.majorMax &&
 		p.minorMin <= p.minorMax &&
@@ -71,7 +76,7 @@ var (
 	NutFixedDependencyRegexp = regexp.MustCompile(`^(\d+)\.(\d+)\.(\d+)$`)
 
 	// Current format for (fixed) VCS dependency.
-	VcsDependencyRegexp = regexp.MustCompile(`^(bzr|git|hg|svn):(\S+)$`)
+	VcsDependencyRegexp = regexp.MustCompile(`^(bzr|git|hg):(\S+)$`)
 )
 
 // Describes dependency information.
