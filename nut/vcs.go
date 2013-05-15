@@ -2,9 +2,7 @@ package main
 
 import (
 	"log"
-	"os"
 	"os/exec"
-	"path/filepath"
 	"strings"
 )
 
@@ -33,28 +31,47 @@ func vcsCheckout(vcs, rev, dir string, verbose bool) {
 	fatalIfErr(err)
 }
 
-func vcsCurrent(dir string, verbose bool) (vcs, rev string) {
-	var args string
+func vcsCurrent(dir string, verbose bool) (vcs, rev, root string) {
+	// detect vcs and repository root
 	for v, a := range map[string]string{
+		// FIXME "bzr": "",
+		"git": "rev-parse --show-toplevel",
+		"hg":  "root",
+	} {
+		c := exec.Command(v, strings.Split(a, " ")...)
+		c.Dir = dir
+		if verbose {
+			log.Printf("Running %q (in %q)", strings.Join(c.Args, " "), c.Dir)
+		}
+		out, err := c.CombinedOutput()
+		if verbose {
+			log.Print(string(out))
+		}
+		if err == nil {
+			vcs = v
+			root = strings.TrimSpace(string(out))
+			break
+		}
+		if _, ok := err.(*exec.ExitError); ok {
+			err = nil
+		}
+		fatalIfErr(err)
+	}
+	if vcs == "" {
+		return
+	}
+
+	// detect current revision
+	args := map[string]string{
 		"bzr": "testament",
 		"git": "rev-parse --verify HEAD",
 		"hg":  "identify --debug -i",
-	} {
-		_, err := os.Stat(filepath.Join(dir, "."+v))
-		if err == nil {
-			vcs = v
-			args = a
-			break
-		}
-	}
-	if vcs == "" {
-		log.Fatalf("%s: unknown or unsupported VCS.", dir)
-	}
+	}[vcs]
 
 	c := exec.Command(vcs, strings.Split(args, " ")...)
-	c.Dir = dir
+	c.Dir = root
 	if verbose {
-		log.Printf("Running %q (in %q)", strings.Join(c.Args, " "), dir)
+		log.Printf("Running %q (in %q)", strings.Join(c.Args, " "), c.Dir)
 	}
 	out, err := c.CombinedOutput()
 	if verbose || err != nil {

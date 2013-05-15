@@ -68,7 +68,13 @@ func runBundle(cmd *command) {
 		if pack.Goroot {
 			continue
 		}
-		dep, err := NewDependency(pack.ImportPath, "*.*.*")
+
+		vcs, rev, _ := vcsCurrent(filepath.Join(srcDir, pack.ImportPath), true)
+		version := vcs + ":" + rev
+		if vcs == "" {
+			version = "*.*.*"
+		}
+		dep, err := NewDependency(pack.ImportPath, version)
 		fatalIfErr(err)
 		err = bundle.Dependencies.Add(dep)
 		fatalIfErr(err)
@@ -76,6 +82,6 @@ func runBundle(cmd *command) {
 		importPaths = append(importPaths, pack.Imports...)
 	}
 
-	_, err = bundle.WriteTo(os.Stderr)
+	err = bundle.WriteFile(BundleFileName)
 	fatalIfErr(err)
 }
