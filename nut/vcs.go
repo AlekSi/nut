@@ -34,7 +34,7 @@ func vcsCheckout(vcs, rev, dir string, verbose bool) {
 func vcsCurrent(dir string, verbose bool) (vcs, rev, root string) {
 	// detect vcs and repository root
 	for v, a := range map[string]string{
-		// FIXME "bzr": "",
+		"bzr": "root",
 		"git": "rev-parse --show-toplevel",
 		"hg":  "root",
 	} {
