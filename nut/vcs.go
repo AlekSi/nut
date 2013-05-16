@@ -1,10 +1,36 @@
 package main
 
 import (
+	"fmt"
+	"io/ioutil"
 	"log"
 	"os/exec"
+	"path/filepath"
 	"strings"
 )
+
+func vcsRoot(dir string) (vcs, root string) {
+	if !filepath.IsAbs(dir) {
+		panic(fmt.Errorf("%q should be absolute path", dir))
+	}
+
+	for dir != srcDir {
+		fi, err := ioutil.ReadDir(dir)
+		fatalIfErr(err)
+		for _, f := range fi {
+			switch f.Name() {
+			case ".bzr", ".git", ".hg":
+				vcs = f.Name()[1:]
+				root = dir
+				return
+			}
+		}
+
+		dir = filepath.Join(dir, "..")
+	}
+
+	return
+}
 
 func vcsCheckout(vcs, rev, dir string, verbose bool) {
 	var args string
@@ -25,38 +51,14 @@ func vcsCheckout(vcs, rev, dir string, verbose bool) {
 		log.Printf("Running %q (in %q)", strings.Join(c.Args, " "), dir)
 	}
 	out, err := c.CombinedOutput()
-	if verbose || err != nil {
+	if Config.Debug || err != nil {
 		log.Print(string(out))
 	}
 	fatalIfErr(err)
 }
 
 func vcsCurrent(dir string, verbose bool) (vcs, rev, root string) {
-	// detect vcs and repository root
-	for v, a := range map[string]string{
-		"bzr": "root",
-		"git": "rev-parse --show-toplevel",
-		"hg":  "root",
-	} {
-		c := exec.Command(v, strings.Split(a, " ")...)
-		c.Dir = dir
-		if verbose {
-			log.Printf("Running %q (in %q)", strings.Join(c.Args, " "), c.Dir)
-		}
-		out, err := c.CombinedOutput()
-		if verbose {
-			log.Print(string(out))
-		}
-		if err == nil {
-			vcs = v
-			root = strings.TrimSpace(string(out))
-			break
-		}
-		if _, ok := err.(*exec.ExitError); ok {
-			err = nil
-		}
-		fatalIfErr(err)
-	}
+	vcs, root = vcsRoot(dir)
 	if vcs == "" {
 		return
 	}
@@ -74,7 +76,7 @@ func vcsCurrent(dir string, verbose bool) (vcs, rev, root string) {
 		log.Printf("Running %q (in %q)", strings.Join(c.Args, " "), c.Dir)
 	}
 	out, err := c.CombinedOutput()
-	if verbose || err != nil {
+	if Config.Debug || err != nil {
 		log.Print(string(out))
 	}
 	fatalIfErr(err)
