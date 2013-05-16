@@ -51,6 +51,13 @@ func (deps *Dependencies) Add(d *Dependency) (err error) {
 		return
 	}
 
+	if d.OnVcs() {
+		if e.Version != d.Version {
+			err = &AddDependencyError{ex: e, add: d}
+		}
+		return
+	}
+
 	e.parse()
 	e.parsed.majorMin = maxSection(e.parsed.majorMin, d.MajorMin())
 	e.parsed.majorMax = minSection(e.parsed.majorMax, d.MajorMax())
