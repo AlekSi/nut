@@ -36,18 +36,15 @@ func runLock(cmd *command) {
 		lockV = Config.V
 	}
 
-	dir, err := os.Getwd()
-	fatalIfErr(err)
-
 	var importPaths []string
-	err = filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk(srcDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
 		if !info.IsDir() {
 			return nil
 		}
-		if strings.HasPrefix(info.Name(), ".") { // skip .git, .hg, etc
+		if strings.HasPrefix(info.Name(), ".") { // skip .bzr, .git, .hg
 			return filepath.SkipDir
 		}
 		pack, err := build.ImportDir(path, 0)
@@ -57,9 +54,7 @@ func runLock(cmd *command) {
 		if err != nil {
 			return err
 		}
-		importPaths = append(importPaths, pack.Imports...)
-		importPaths = append(importPaths, pack.TestImports...)
-		importPaths = append(importPaths, pack.XTestImports...)
+		importPaths = append(importPaths, pack.ImportPath)
 		return nil
 	})
 	fatalIfErr(err)
@@ -93,8 +88,6 @@ func runLock(cmd *command) {
 		fatalIfErr(err)
 		err = deps.Dependencies.Add(dep)
 		fatalIfErr(err)
-
-		importPaths = append(importPaths, pack.Imports...)
 	}
 
 	err = deps.WriteFile(DependenciesFileName)
