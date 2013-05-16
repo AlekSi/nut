@@ -2,6 +2,7 @@ package main
 
 import (
 	"go/build"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -12,9 +13,11 @@ import (
 var (
 	cmdLock = &command{
 		Run:       runLock,
-		UsageLine: "lock",
+		UsageLine: "lock [-v]",
 		Short:     "lock",
 	}
+
+	lockV bool
 )
 
 func init() {
@@ -24,9 +27,15 @@ Generates or updates dependencies.json in current directory.
 Examples:
     nut lock
 `
+
+	cmdLock.Flag.BoolVar(&lockV, "v", false, vHelp)
 }
 
 func runLock(cmd *command) {
+	if !lockV {
+		lockV = Config.V
+	}
+
 	dir, err := os.Getwd()
 	fatalIfErr(err)
 
@@ -41,7 +50,6 @@ func runLock(cmd *command) {
 		if strings.HasPrefix(info.Name(), ".") { // skip .git, .hg, etc
 			return filepath.SkipDir
 		}
-
 		pack, err := build.ImportDir(path, 0)
 		if _, ok := err.(*build.NoGoError); ok {
 			return nil
@@ -50,6 +58,8 @@ func runLock(cmd *command) {
 			return err
 		}
 		importPaths = append(importPaths, pack.Imports...)
+		importPaths = append(importPaths, pack.TestImports...)
+		importPaths = append(importPaths, pack.XTestImports...)
 		return nil
 	})
 	fatalIfErr(err)
@@ -62,6 +72,11 @@ func runLock(cmd *command) {
 		if imported[path] {
 			continue
 		}
+		if strings.HasPrefix(path, ".") || strings.HasPrefix(path, "/") {
+			log.Printf("Warning: Skipping import path %q", path)
+			imported[path] = true
+			continue
+		}
 		pack, err := build.Import(path, srcDir, 0)
 		fatalIfErr(err)
 		imported[path] = true
@@ -69,7 +84,7 @@ func runLock(cmd *command) {
 			continue
 		}
 
-		vcs, rev, _ := vcsCurrent(filepath.Join(srcDir, pack.ImportPath), true)
+		vcs, rev, _ := vcsCurrent(filepath.Join(srcDir, pack.ImportPath), lockV)
 		version := vcs + ":" + rev
 		if vcs == "" {
 			version = "*.*.*"
