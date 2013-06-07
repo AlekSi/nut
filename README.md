@@ -11,8 +11,10 @@ Nut is a tool to manage versioned [Go](http://golang.org) source code packages, 
 * [Contributing](https://github.com/AlekSi/nut/blob/develop/CONTRIBUTING.md)
 * [License](https://github.com/AlekSi/nut/blob/develop/LICENSE)
 
-Install it with `go get`:
+Install latest stable version with `go get`:
 
 	go get -u github.com/AlekSi/nut/...
 	touch ~/.nut.json
 	nut help
+
+Note: development happens mostly in [other branches](https://github.com/AlekSi/nut/pulse).
