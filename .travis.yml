@@ -1,7 +1,12 @@
 language: go
+go:
+  - 1.0
+  - 1.1
+
 before_install:
-  - sudo apt-get -qq install bzr
-  - mkdir -p $GOPATH/src/github.com/AlekSi
-  - cp -R `pwd` $GOPATH/src/github.com/AlekSi
+  - sudo apt-get install bzr
+
 install: make prepare
-script: make -C $GOPATH/src/github.com/AlekSi/nut
+
+# for errcheck
+script: PATH=$HOME/gopath/bin:$PATH make
