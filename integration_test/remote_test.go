@@ -46,11 +46,11 @@ func (*R) TestPublishGet(c *C) {
 	gitNoDiff(c, TestNut1)
 
 	_, stderr = runNut(c, TestNut2, "pack -v")
-	c.Check(strings.HasSuffix(stderr, `test_nut2-0.0.2.nut created.`), Equals, true)
+	c.Check(strings.HasSuffix(stderr, `test_nut2-0.2.0.nut created.`), Equals, true)
 	gitNoDiff(c, TestNut2)
 
 	_, stderr = runNut(c, TestNut3, "pack -v")
-	c.Check(strings.HasSuffix(stderr, `test_nut3-0.0.3.nut created.`), Equals, true)
+	c.Check(strings.HasSuffix(stderr, `test_nut3-0.3.0.nut created.`), Equals, true)
 	gitNoDiff(c, TestNut3)
 
 	_, stderr = runNut(c, TestNut1, "publish -v test_nut1-0.0.1.nut")
@@ -61,17 +61,17 @@ func (*R) TestPublishGet(c *C) {
 	c.Check(strings.HasSuffix(stderr, `Nut debug/test_nut1 version 0.0.1 already exists.`), Equals, true)
 	gitNoDiff(c, TestNut1)
 
-	_, stderr = runNut(c, TestNut2, "publish -v test_nut2-0.0.2.nut")
-	c.Check(strings.HasSuffix(stderr, `Nut debug/test_nut2 version 0.0.2 published.`), Equals, true)
+	_, stderr = runNut(c, TestNut2, "publish -v test_nut2-0.2.0.nut")
+	c.Check(strings.HasSuffix(stderr, `Nut debug/test_nut2 version 0.2.0 published.`), Equals, true)
 	gitNoDiff(c, TestNut2)
 
-	_, stderr = runNut(c, TestNut3, "publish -v test_nut3-0.0.3.nut")
-	c.Check(strings.HasSuffix(stderr, `Nut debug/test_nut3 version 0.0.3 published.`), Equals, true)
+	_, stderr = runNut(c, TestNut3, "publish -v test_nut3-0.3.0.nut")
+	c.Check(strings.HasSuffix(stderr, `Nut debug/test_nut3 version 0.3.0 published.`), Equals, true)
 	gitNoDiff(c, TestNut3)
 
-	_, stderr = runNut(c, "", "get -v debug/test_nut3/0.0.3")
+	_, stderr = runNut(c, "", "get -v debug/test_nut3/0.3.0")
 	c.Check(strings.Count(stderr, "gonuts.io/test_nut1-0.0.1.nut"), Equals, 1)
-	c.Check(strings.Count(stderr, "gonuts.io/test_nut2-0.0.2.nut"), Equals, 1)
-	c.Check(strings.Count(stderr, "gonuts.io/test_nut3-0.0.3.nut"), Equals, 1)
+	c.Check(strings.Count(stderr, "gonuts.io/test_nut2-0.2.0.nut"), Equals, 1)
+	c.Check(strings.Count(stderr, "gonuts.io/test_nut3-0.3.0.nut"), Equals, 1)
 	c.Check(strings.HasSuffix(stderr, `gonuts.io/debug/test_nut3`), Equals, true)
 }
