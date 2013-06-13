@@ -64,7 +64,7 @@ func runGenerate(cmd *command) {
 
 	// set author
 	if len(spec.Authors) == 0 {
-		spec.Authors = []Person{Config.Author}
+		spec.Authors = append(spec.Authors, Config.Author)
 	}
 
 	// some extra files
