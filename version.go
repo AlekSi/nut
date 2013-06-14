@@ -3,6 +3,7 @@ package nut
 import (
 	"fmt"
 	"regexp"
+	"sort"
 	"strconv"
 )
 
@@ -78,3 +79,15 @@ func (v *Version) setVersion(version string) (err error) {
 	v.Patch, _ = strconv.Atoi(parsed[0][3])
 	return
 }
+
+// Slice of Version, implementing sort.Interface.
+type Versions []Version
+
+// check interface
+var (
+	_ sort.Interface = Versions{}
+)
+
+func (v Versions) Len() int           { return len(v) }
+func (v Versions) Less(i, j int) bool { return (&v[i]).Less(&v[j]) }
+func (v Versions) Swap(i, j int)      { v[i], v[j] = v[j], v[i] }

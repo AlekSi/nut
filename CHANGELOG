@@ -1,5 +1,6 @@
 2013-xx-yy: 0.4.dev
   + New API for Spec: WriteFile().
+  + New API: Versions ([]Version implementing sort.Interface).
   + Store vendor and author in ~/.nut.json, use them in `nut generate`.
   * Abort if ~/.nut.json is not empty and has invalid format.
   * Documentation improvements.
