@@ -166,6 +166,11 @@ func (nf *NutFile) ReadFrom(r io.Reader) (n int64, err error) {
 // byName implements sort.Interface.
 type byName []os.FileInfo
 
+// check interface
+var (
+	_ sort.Interface = byName{}
+)
+
 func (f byName) Len() int           { return len(f) }
 func (f byName) Less(i, j int) bool { return f[i].Name() < f[j].Name() }
 func (f byName) Swap(i, j int)      { f[i], f[j] = f[j], f[i] }
