@@ -9,6 +9,7 @@ Nut is a tool to manage versioned [Go](http://golang.org) source code packages, 
 * [Mailing List](https://groups.google.com/group/gonuts-io)
 * [Issues](https://github.com/AlekSi/nut/issues)
 * [Contributing](https://github.com/AlekSi/nut/blob/develop/CONTRIBUTING.md)
+* [Contributors](https://github.com/AlekSi/nut/contributors)
 * [License](https://github.com/AlekSi/nut/blob/develop/LICENSE)
 
 Install latest stable version with `go get`:
