@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"go/build"
 	"io/ioutil"
@@ -47,7 +48,7 @@ Examples:
 }
 
 // Parse argument, return URL to get nut from and install prefix.
-func ParseArg(s string) (u *url.URL, prefix string) {
+func ParseArg(s string) (u *url.URL, prefix string, err error) {
 	var p []string
 	var host string
 	var ok bool
@@ -58,10 +59,12 @@ func ParseArg(s string) (u *url.URL, prefix string) {
 	}
 
 	p = strings.Split(s, "/")
-	if len(p) > 0 {
-		prefix = p[0]
-		host, ok = NutImportPrefixes[prefix]
+	if len(p) < 2 {
+		err = errors.New("invalid argument")
+		return
 	}
+	prefix = p[0]
+	host, ok = NutImportPrefixes[prefix]
 	if ok {
 		// import path style
 		p[0] = "http://" + host
@@ -74,13 +77,17 @@ func ParseArg(s string) (u *url.URL, prefix string) {
 	}
 
 parse:
-	u, err := url.Parse(s)
-	fatalIfErr(err)
+	u, err = url.Parse(s)
+	if err != nil {
+		return
+	}
 	if prefix == "" {
 		prefix = u.Host
 		if strings.Contains(prefix, ":") {
 			prefix, _, err = net.SplitHostPort(prefix)
-			fatalIfErr(err)
+			if err != nil {
+				return
+			}
 		}
 		if strings.HasPrefix(prefix, "www.") {
 			prefix = prefix[4:]
@@ -147,7 +154,8 @@ func runGet(cmd *command) {
 		arg := args[0]
 		args = args[1:]
 
-		url, prefix := ParseArg(arg)
+		url, prefix, err := ParseArg(arg)
+		fatalIfErr(err)
 
 		// do not download twice
 		_, present := urlsToPaths[url.String()]

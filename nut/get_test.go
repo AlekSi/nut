@@ -23,7 +23,7 @@ func (g *G) TearDownSuite(*C) {
 }
 
 func (*G) TestParseArg(c *C) {
-	data := [][3]string{
+	data := [][4]string{
 		// short style
 		{"aleksi/test_nut1", "http://server/aleksi/test_nut1", "gonuts.io"},
 		{"aleksi/test_nut1/0.0.1", "http://server/aleksi/test_nut1/0.0.1", "gonuts.io"},
@@ -40,12 +40,23 @@ func (*G) TestParseArg(c *C) {
 		{"http://localhost:8080/aleksi/test_nut1-0.0.1.nut", "http://localhost:8080/aleksi/test_nut1-0.0.1.nut", "localhost"},
 		{"http://example.com/nuts/test_nut1-0.0.1.nut", "http://example.com/nuts/test_nut1-0.0.1.nut", "example.com"},
 		{"https://example.com/nuts/test_nut1-0.0.1.nut", "https://example.com/nuts/test_nut1-0.0.1.nut", "example.com"},
+
+		// invalid
+		{"aleksi", "", "", "invalid argument"},
 	}
 
 	for _, d := range data {
-		u, prefix := ParseArg(d[0])
-		c.Check(u.String(), Equals, d[1])
+		u, prefix, err := ParseArg(d[0])
 		c.Check(prefix, Equals, d[2])
+		if err == nil {
+			c.Check(u.String(), Equals, d[1])
+			c.Check(err, IsNil)
+			c.Check(d[3], Equals, "")
+		} else {
+			c.Check(u, IsNil)
+			c.Check(err.Error(), Equals, d[3])
+			c.Check(d[1], Equals, "")
+		}
 	}
 }
 

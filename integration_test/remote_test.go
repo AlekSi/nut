@@ -75,3 +75,12 @@ func (*R) TestPublishGet(c *C) {
 	c.Check(strings.Count(stderr, "gonuts.io/test_nut3-0.3.0.nut"), Equals, 1)
 	c.Check(strings.HasSuffix(stderr, `gonuts.io/debug/test_nut3`), Equals, true)
 }
+
+func (*R) TestGet404(c *C) {
+	_, stderr := runNut(c, "", "get -v debug/test_nut3/7.8.999", 1)
+	c.Check(strings.Contains(stderr, "Status code 404"), Equals, true)
+	_, stderr = runNut(c, "", "get -v debug/no-such-nut", 1)
+	c.Check(strings.Contains(stderr, "Status code 404"), Equals, true)
+	_, stderr = runNut(c, "", "get -v debug", 1)
+	c.Check(stderr, Equals, "invalid argument")
+}
