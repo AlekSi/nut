@@ -59,15 +59,17 @@ var commands = []*command{
 	cmdUnpack,
 }
 
+var NutVersion = "0.4.dev"
+
 var usageTemplate = template.Must(template.New("top").Parse(`Nut is a tool for managing versioned Go source code packages.
-Version 0.4.dev.
+Version {{.Version}}.
 
 Usage:
 
     nut command [arguments]
 
 The commands are:
-{{range .}}
+{{range .Commands}}
     {{.Name | printf "%-11s"}} {{.Short}}{{end}}
 
 Use "nut help [command]" for more information about a command.
@@ -99,7 +101,11 @@ func help(args ...string) {
 
 func main() {
 	flag.Usage = func() {
-		fatalIfErr(usageTemplate.Execute(os.Stderr, commands))
+		m := map[string]interface{}{
+			"Version":  NutVersion,
+			"Commands": commands,
+		}
+		fatalIfErr(usageTemplate.Execute(os.Stderr, m))
 		flag.PrintDefaults()
 	}
 

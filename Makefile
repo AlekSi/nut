@@ -13,7 +13,7 @@ fvb:
 	gofmt -e -s -w .
 	go tool vet .
 	go install github.com/AlekSi/nut
-	go build -o gonut.exe github.com/AlekSi/nut/nut
+	go build -o gonut.exe -ldflags "-X main.NutVersion `git describe --tags`" github.com/AlekSi/nut/nut
 	-errcheck github.com/AlekSi/nut
 	-errcheck github.com/AlekSi/nut/nut
 	-errcheck github.com/AlekSi/nut/integration_test
