@@ -55,7 +55,7 @@ func runPublish(cmd *command) {
 		url.RawQuery = "token=" + publishToken
 		req, err := http.NewRequest("PUT", url.String(), bytes.NewReader(b))
 		fatalIfErr(err)
-		req.Header.Set("User-Agent", "nut publisher")
+		req.Header.Set("User-Agent", "nut publisher "+NutVersion)
 		req.Header.Set("Content-Type", "application/zip")
 		req.ContentLength = int64(len(b))
 
