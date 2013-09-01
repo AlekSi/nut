@@ -149,7 +149,7 @@ func (d *Dependency) OnVcs() bool {
 	return VcsDependencyRegexp.MatchString(d.Version)
 }
 
-func (d *Dependency) IsStrict() bool {
+func (d *Dependency) IsFixed() bool {
 	return NutFixedDependencyRegexp.MatchString(d.Version) || VcsDependencyRegexp.MatchString(d.Version)
 }
 

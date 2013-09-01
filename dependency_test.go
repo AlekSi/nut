@@ -46,14 +46,14 @@ func (d *D) TestMatchesExact(c *C) {
 	dep, err := NewDependency("gonuts.io/debug/test_nut1", "0.0.1")
 	c.Check(err, IsNil)
 	c.Check(dep.OnNut(), Equals, true)
-	c.Check(dep.IsStrict(), Equals, true)
+	c.Check(dep.IsFixed(), Equals, true)
 	c.Check(dep.Matches("gonuts.io", d.nut), Equals, true)
 
 	for _, v := range []string{"0.0.9", "0.9.1", "9.0.1"} {
 		dep, err = NewDependency("gonuts.io/debug/test_nut1", v)
 		c.Check(err, IsNil)
 		c.Check(dep.OnNut(), Equals, true)
-		c.Check(dep.IsStrict(), Equals, true)
+		c.Check(dep.IsFixed(), Equals, true)
 		c.Check(dep.Matches("gonuts.io", d.nut), Equals, false)
 	}
 }
@@ -63,7 +63,7 @@ func (d *D) TestMatchesWildcard(c *C) {
 		dep, err := NewDependency("gonuts.io/debug/test_nut1", v)
 		c.Check(err, IsNil)
 		c.Check(dep.OnNut(), Equals, true)
-		c.Check(dep.IsStrict(), Equals, false)
+		c.Check(dep.IsFixed(), Equals, false)
 		c.Check(dep.Matches("gonuts.io", d.nut), Equals, true, Commentf("Dependency %q should match %v", dep, d.nut))
 	}
 
@@ -71,7 +71,7 @@ func (d *D) TestMatchesWildcard(c *C) {
 		dep, err := NewDependency("gonuts.io/debug/test_nut1", v)
 		c.Check(err, IsNil)
 		c.Check(dep.OnNut(), Equals, true)
-		c.Check(dep.IsStrict(), Equals, false)
+		c.Check(dep.IsFixed(), Equals, false)
 		c.Check(dep.Matches("gonuts.io", d.nut), Equals, false, Commentf("Dependency %q should not match %v", dep, d.nut))
 	}
 }
@@ -81,7 +81,7 @@ func (d *D) TestMatchesMoreEqual(c *C) {
 		dep, err := NewDependency("gonuts.io/debug/test_nut1", v)
 		c.Check(err, IsNil)
 		c.Check(dep.OnNut(), Equals, true)
-		c.Check(dep.IsStrict(), Equals, false)
+		c.Check(dep.IsFixed(), Equals, false)
 		c.Check(dep.Matches("gonuts.io", d.nut), Equals, true, Commentf("Dependency %q should match %v", dep, d.nut))
 	}
 
@@ -89,7 +89,7 @@ func (d *D) TestMatchesMoreEqual(c *C) {
 		dep, err := NewDependency("gonuts.io/debug/test_nut1", v)
 		c.Check(err, IsNil)
 		c.Check(dep.OnNut(), Equals, true)
-		c.Check(dep.IsStrict(), Equals, false)
+		c.Check(dep.IsFixed(), Equals, false)
 		c.Check(dep.Matches("gonuts.io", d.nut), Equals, false, Commentf("Dependency %q should not match %v", dep, d.nut))
 	}
 }
