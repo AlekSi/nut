@@ -77,6 +77,6 @@ func runInstall(cmd *command) {
 		}
 		unpackNut(dstFile, srcPath, true, installV)
 
-		installPackage(nf.ImportPath(installP), installV)
+		installGoPackage(nf.ImportPath(installP), installV)
 	}
 }

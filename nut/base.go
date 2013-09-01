@@ -134,13 +134,8 @@ func fatalIfErr(err error) {
 	}
 }
 
-// Call 'go install <path>'.
-func installPackage(path string, verbose bool) {
-	args := []string{"install"}
-	if verbose {
-		args = append(args, "-v")
-	}
-	args = append(args, path)
+// Call 'go' with given arguments.
+func callGo(args []string, verbose bool) {
 	c := exec.Command("go", args...)
 	if verbose {
 		log.Printf("Running %q", strings.Join(c.Args, " "))
@@ -150,6 +145,26 @@ func installPackage(path string, verbose bool) {
 		log.Print(string(out))
 	}
 	fatalIfErr(err)
+}
+
+// Call 'go get -u -d <path>'.
+func getGoPackage(path string, verbose bool) {
+	args := []string{"get", "-u", "-d"}
+	if verbose {
+		args = append(args, "-v")
+	}
+	args = append(args, path)
+	callGo(args, verbose)
+}
+
+// Call 'go install <path>'.
+func installGoPackage(path string, verbose bool) {
+	args := []string{"install"}
+	if verbose {
+		args = append(args, "-v")
+	}
+	args = append(args, path)
+	callGo(args, verbose)
 }
 
 // TODO common functions below are mess for now

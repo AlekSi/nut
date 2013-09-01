@@ -206,6 +206,6 @@ func runGet(cmd *command) {
 	}
 	sort.Strings(paths)
 	for _, path := range paths {
-		installPackage(path, getV)
+		installGoPackage(path, getV)
 	}
 }
