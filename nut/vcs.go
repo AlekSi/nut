@@ -57,13 +57,7 @@ func vcsCheckout(vcs, rev, dir string, verbose bool) {
 	fatalIfErr(err)
 }
 
-func vcsCurrent(dir string, verbose bool) (vcs, rev, root string) {
-	vcs, root = vcsRoot(dir)
-	if vcs == "" {
-		return
-	}
-
-	// detect current revision
+func vcsCurrent(vcs, root string, verbose bool) (rev string) {
 	args := map[string]string{
 		"bzr": "testament",
 		"git": "rev-parse --verify HEAD",

@@ -36,6 +36,7 @@ func runLock(cmd *command) {
 		lockV = Config.V
 	}
 
+	// collect import paths
 	var importPaths []string
 	err := filepath.Walk(srcDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -79,8 +80,16 @@ func runLock(cmd *command) {
 			continue
 		}
 
-		vcs, rev, root := vcsCurrent(filepath.Join(srcDir, pack.ImportPath), lockV)
-		if vcs == "" {
+		vcs, root := vcsRoot(filepath.Join(srcDir, pack.ImportPath))
+		if root == "" {
+			continue
+		}
+		if imported[root] {
+			continue
+		}
+		imported[root] = true
+		rev := vcsCurrent(vcs, root, lockV)
+		if rev == "" {
 			continue
 		}
 		root, err = filepath.Rel(srcDir, root)
