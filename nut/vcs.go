@@ -32,7 +32,7 @@ func vcsRoot(dir string) (vcs, root string) {
 	return
 }
 
-func vcsCheckout(vcs, rev, dir string, verbose bool) {
+func vcsCheckout(vcs, rev, dir string) {
 	var args string
 	switch vcs {
 	case "bzr":
@@ -47,7 +47,7 @@ func vcsCheckout(vcs, rev, dir string, verbose bool) {
 
 	c := exec.Command(vcs, strings.Split(args, " ")...)
 	c.Dir = dir
-	if verbose {
+	if Config.Debug {
 		log.Printf("Running %q (in %q)", strings.Join(c.Args, " "), dir)
 	}
 	out, err := c.CombinedOutput()
@@ -57,7 +57,7 @@ func vcsCheckout(vcs, rev, dir string, verbose bool) {
 	fatalIfErr(err)
 }
 
-func vcsCurrent(vcs, root string, verbose bool) (rev string) {
+func vcsCurrent(vcs, root string) (rev string) {
 	args := map[string]string{
 		"bzr": "testament",
 		"git": "rev-parse --verify HEAD",
@@ -66,7 +66,7 @@ func vcsCurrent(vcs, root string, verbose bool) (rev string) {
 
 	c := exec.Command(vcs, strings.Split(args, " ")...)
 	c.Dir = root
-	if verbose {
+	if Config.Debug {
 		log.Printf("Running %q (in %q)", strings.Join(c.Args, " "), c.Dir)
 	}
 	out, err := c.CombinedOutput()

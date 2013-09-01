@@ -16,8 +16,6 @@ var (
 		UsageLine: "lock [-v]",
 		Short:     "lock",
 	}
-
-	lockV bool
 )
 
 func init() {
@@ -27,15 +25,9 @@ Generates or updates dependencies.json in current directory.
 Examples:
     nut lock
 `
-
-	cmdLock.Flag.BoolVar(&lockV, "v", false, vHelp)
 }
 
 func runLock(cmd *command) {
-	if !lockV {
-		lockV = Config.V
-	}
-
 	// collect import paths
 	var importPaths []string
 	err := filepath.Walk(srcDir, func(path string, info os.FileInfo, err error) error {
@@ -88,7 +80,7 @@ func runLock(cmd *command) {
 			continue
 		}
 		imported[root] = true
-		rev := vcsCurrent(vcs, root, lockV)
+		rev := vcsCurrent(vcs, root)
 		if rev == "" {
 			continue
 		}
