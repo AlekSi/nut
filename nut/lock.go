@@ -59,7 +59,7 @@ func runLock(cmd *command) {
 	})
 	fatalIfErr(err)
 
-	deps := DependenciesFile{}
+	deps := Dependencies{}
 	imported := make(map[string]bool)
 	var path string
 	for len(importPaths) > 0 {
@@ -79,14 +79,15 @@ func runLock(cmd *command) {
 			continue
 		}
 
-		vcs, rev, _ := vcsCurrent(filepath.Join(srcDir, pack.ImportPath), lockV)
-		version := vcs + ":" + rev
+		vcs, rev, root := vcsCurrent(filepath.Join(srcDir, pack.ImportPath), lockV)
 		if vcs == "" {
-			version = "*.*.*"
+			continue
 		}
-		dep, err := NewDependency(pack.ImportPath, version)
+		root, err = filepath.Rel(srcDir, root)
 		fatalIfErr(err)
-		err = deps.Dependencies.Add(dep)
+		dep, err := NewDependency(root, vcs+":"+rev)
+		fatalIfErr(err)
+		err = deps.Add(dep)
 		fatalIfErr(err)
 	}
 

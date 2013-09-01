@@ -3,6 +3,9 @@ package nut
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"io/ioutil"
+	"os"
 	"sort"
 	"strings"
 )
@@ -24,11 +27,21 @@ type Dependencies struct {
 	d map[string]Dependency // import path to dependency
 }
 
+type dependenciesFile struct {
+	Dependencies *Dependencies
+}
+
+const (
+	DependenciesFileName = "dependencies.json"
+)
+
 // check interfaces
 var (
 	_ fmt.Stringer     = Dependencies{}
 	_ json.Marshaler   = &Dependencies{}
 	_ json.Unmarshaler = &Dependencies{}
+	_ io.ReaderFrom    = &Dependencies{}
+	_ io.WriterTo      = &Dependencies{}
 )
 
 func (deps Dependencies) String() string {
@@ -133,5 +146,68 @@ func (deps *Dependencies) UnmarshalJSON(b []byte) (err error) {
 			return
 		}
 	}
+	return
+}
+
+// Reads dependencies from specified file.
+func (deps *Dependencies) ReadFile(fileName string) (err error) {
+	f, err := os.Open(fileName)
+	if err != nil {
+		return
+	}
+	defer f.Close()
+
+	_, err = deps.ReadFrom(f)
+	return
+}
+
+// ReadFrom reads dependencies from r until EOF.
+// The return value n is the number of bytes read.
+// Any error except io.EOF encountered during the read is also returned.
+// Implements io.ReaderFrom.
+func (deps *Dependencies) ReadFrom(r io.Reader) (n int64, err error) {
+	var b []byte
+	b, err = ioutil.ReadAll(r)
+	n = int64(len(b))
+	if err != nil {
+		return
+	}
+
+	depsF := new(dependenciesFile)
+	err = json.Unmarshal(b, depsF)
+	if err == nil {
+		deps = depsF.Dependencies
+	}
+	return
+}
+
+// Writes dependencies to specified file.
+func (deps *Dependencies) WriteFile(fileName string) (err error) {
+	f, err := os.Create(fileName)
+	if err != nil {
+		return
+	}
+	defer f.Close()
+
+	_, err = deps.WriteTo(f)
+	return
+}
+
+// WriteTo writes dependencies to w.
+// The return value n is the number of bytes written.
+// Any error encountered during the write is also returned.
+// Implements io.WriterTo.
+func (deps *Dependencies) WriteTo(w io.Writer) (n int64, err error) {
+	depsF := dependenciesFile{deps}
+
+	var b []byte
+	b, err = json.MarshalIndent(depsF, "", "  ")
+	if err != nil {
+		return
+	}
+
+	b = append(b, '\n')
+	n1, err := w.Write(b)
+	n = int64(n1)
 	return
 }
