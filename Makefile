@@ -4,6 +4,7 @@ prepare:
 	go env
 	go get -u launchpad.net/gocheck
 	-go get -u github.com/kisielk/errcheck
+	-go get code.google.com/p/go.tools/cmd/vet
 	go get -u github.com/AlekSi/test_nut1
 	-go get -u github.com/AlekSi/test_nut2
 	-go get -u github.com/AlekSi/test_nut3
