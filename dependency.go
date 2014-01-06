@@ -75,8 +75,8 @@ var (
 	// Current format for fixed nut dependency.
 	NutFixedDependencyRegexp = regexp.MustCompile(`^(\d+)\.(\d+)\.(\d+)$`)
 
-	// Current format for (fixed) VCS dependency.
-	VcsDependencyRegexp = regexp.MustCompile(`^(bzr|git|hg):(\S+)$`)
+	// Current format for fixed VCS dependency.
+	VcsFixedDependencyRegexp = regexp.MustCompile(`^(bzr|git|hg):(\S+)$`)
 )
 
 // Describes dependency information.
@@ -146,11 +146,11 @@ func (d *Dependency) OnNut() bool {
 }
 
 func (d *Dependency) OnVcs() bool {
-	return VcsDependencyRegexp.MatchString(d.Version)
+	return VcsFixedDependencyRegexp.MatchString(d.Version)
 }
 
 func (d *Dependency) IsFixed() bool {
-	return NutFixedDependencyRegexp.MatchString(d.Version) || VcsDependencyRegexp.MatchString(d.Version)
+	return NutFixedDependencyRegexp.MatchString(d.Version) || VcsFixedDependencyRegexp.MatchString(d.Version)
 }
 
 func (d *Dependency) MajorMin() int {
