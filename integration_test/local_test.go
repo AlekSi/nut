@@ -54,10 +54,10 @@ Found errors in nut.json:
 
 	c.Check(os.Remove(TestNut3+"/test_nut3.go"), IsNil)
 	_, stderr = runNut(c, TestNut3, "generate -v", 1)
-	c.Check(stderr, Equals, "no Go source files in .")
+	c.Check(stderr, Matches, `^no (buildable )?Go source files in \.$`)
 
 	_, stderr = runNut(c, TestNut3, "check -v", 1)
-	c.Check(strings.HasPrefix(stderr, "no Go source files in ."), Equals, true)
+	c.Check(stderr, Matches, `^no (buildable )?Go source files in \.$`)
 }
 
 func (*L) TestPackCheckUnpack(c *C) {
